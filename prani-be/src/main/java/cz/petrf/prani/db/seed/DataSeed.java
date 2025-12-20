@@ -1,0 +1,61 @@
+package cz.petrf.prani.db.seed;
+
+import com.github.javafaker.Faker;
+import cz.petrf.prani.db.entity.Role;
+import cz.petrf.prani.db.entity.User;
+import cz.petrf.prani.db.repo.RoleRepository;
+import cz.petrf.prani.db.repo.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+
+import java.time.Instant;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.IntStream;
+
+@Component
+@RequiredArgsConstructor
+public class DataSeed {
+
+  private final UserRepository users;
+  private final RoleRepository roles;
+  private final PasswordEncoder encoder;
+
+  @EventListener
+  public void onAppReady(ApplicationReadyEvent ev) {
+    if (users.count() > 50) return;          // už seedováno
+
+    Role adminRole = roles.findByName("ROLE_ADMIN")
+        .orElseGet(() -> roles.save(Role.builder().name("ROLE_ADMIN").build()));
+    Role userRole = roles.findByName("ROLE_USER")
+        .orElseGet(() -> roles.save(Role.builder().name("ROLE_USER").build()));
+
+    User root = User.builder()
+        .publicName("PetrF")
+        .firstName("Petr")
+        .lastName("F")
+        .email("petrf@wo.cz")
+        .password(encoder.encode("petrf@wo.cz"))
+        .emailVerifiedAt(Instant.now())
+        .roles(Set.of(adminRole))
+        .build();
+    users.save(root);
+
+    // 50 náhodných uživatelů
+    Faker faker = new Faker(Locale.of("cs"));
+    IntStream.rangeClosed(1, 50).forEach(i -> {
+      User u = User.builder()
+          .publicName(faker.name().fullName())
+          .firstName(faker.name().firstName())
+          .lastName(faker.name().lastName())
+          .email(faker.internet().emailAddress())
+          .password(encoder.encode("password"))
+          .roles(Set.of(userRole))
+          .build();
+      users.save(u);
+    });
+  }
+}
