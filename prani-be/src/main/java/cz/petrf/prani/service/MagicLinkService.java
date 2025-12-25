@@ -33,7 +33,7 @@ import java.util.UUID;
 public class MagicLinkService {
   @Value("${app.magic-link.expiration-minutes:15}")
   private int expirationMinutes;
-  @Value("${app.magic-link.token-url:http://localhost:8080/api/auth/verify?token=}")
+  @Value("${app.magic-link.token-url:http://localhost:4200/verify-token/}")
   private String tokenUrl;
 
   private final MagicLinkTokenRepository magicLinkRepository;

@@ -1,0 +1,64 @@
+@if (previewUrl()) {
+<div style="margin-top: 20px;">
+  <h3>Náhled nahraného obrázku:</h3>
+  <img [src]="previewUrl()" alt="náhled" style="max-width: 300px;" />
+</div>
+} @else {
+<!-- <img nz-image width="200px" height="200px" nzSrc="error" [nzFallback]="previewUrl()" alt="" /> -->
+}
+<!-- <input type="file" (change)="onFileSelected($event)" accept="image/png,image/jpeg"> -->
+
+<nz-upload
+    nzAction="/api/photo"
+    (nzChange)="handleChange($event)"
+    [nzBeforeUpload]="beforeUpload"
+    [nzFileList]="fileList()"
+    [nzRemove]="removeFoto"
+  >
+    <button nz-button>
+      <nz-icon nzType="upload" />
+      Nahrát obrázek nebo fotografii
+    </button>
+  </nz-upload>
+
+<form nz-form (ngSubmit)="submitForm()" #form="ngForm">
+  <nz-form-item>
+    <nz-form-label [nzSpan]="7" nzRequired>Text přání</nz-form-label>
+    <nz-form-control [nzSpan]="12" nzHasFeedback nzErrorTip="Napište vaše přání">
+      <nz-textarea-count [nzMaxCharacterCount]="2000">
+        <textarea [(ngModel)]="textPrani" name="textPrani" nz-input rows="3" placeholder="Text přání"
+          required></textarea>
+      </nz-textarea-count>
+    </nz-form-control>
+  </nz-form-item>
+  <nz-form-item>
+    <nz-form-control>
+      <button nz-button nzType="primary" [disabled]="!form.valid">Odeslat</button>
+    </nz-form-control>
+  </nz-form-item>
+</form>
+
+textContent: {{ textContent() | json }}<br>
+fileList: {{ fileList() | json }}<br>
+
+
+<nz-result nzStatus="success" nzTitle="Successfully Purchased Cloud Server ECS!"
+  nzSubTitle="Order number: 2017182818828182881 Cloud server configuration takes 1-5 minutes, please wait.">
+  <div nz-result-extra>
+    <button nz-button nzType="primary">Go Console</button>
+    <button nz-button>Buy Again</button>
+  </div>
+</nz-result>
+
+<nz-alert nzType="success" nzMessage="Success Tips" nzShowIcon></nz-alert>
+<nz-alert nzType="info" nzMessage="Informational Notes" nzShowIcon></nz-alert>
+<nz-alert nzType="warning" nzMessage="Warning" nzShowIcon></nz-alert>
+<nz-alert nzType="error" nzMessage="Error" nzShowIcon></nz-alert>
+<nz-alert nzType="success" nzMessage="Success Tips"
+  nzDescription="Detailed description and advices about successful copywriting." nzShowIcon></nz-alert>
+<nz-alert nzType="info" nzMessage="Informational Notes"
+  nzDescription="Additional description and informations about copywriting." nzShowIcon></nz-alert>
+<nz-alert nzType="warning" nzMessage="Warning" nzDescription="This is a warning notice about copywriting."
+  nzShowIcon></nz-alert>
+<nz-alert nzType="error" nzMessage="Error" nzDescription="This is an error message about copywriting."
+  nzShowIcon></nz-alert>

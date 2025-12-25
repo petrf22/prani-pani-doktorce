@@ -1,6 +1,7 @@
 package cz.petrf.prani.controller;
 
 import cz.petrf.prani.db.entity.MagicLinkToken;
+import cz.petrf.prani.db.entity.Role;
 import cz.petrf.prani.db.entity.User;
 import cz.petrf.prani.exception.EmailException;
 import cz.petrf.prani.exception.ExpiredTokenException;
@@ -45,6 +46,8 @@ public class AuthController {
 
   @Value("${app.refresh.token.max.age:90}")
   private int refreshTokenMaxAge;
+  @Value("${app.security.cookie.secure:true}")
+  private boolean secureCookie;
 
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletRequest req, HttpServletResponse resp) {
@@ -104,6 +107,7 @@ public class AuthController {
 
       return createLoginResponseEntity(userOpt.get(), req, resp);
     } catch (JwtException | UsernameNotFoundException ex) {
+      log.error("Chyba refresh tokenu", ex);
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
   }
@@ -120,17 +124,26 @@ public class AuthController {
       }
     }
 
-    /* smaž cookie */
-    ResponseCookie delete = ResponseCookie.from("refresh", "")
-        .httpOnly(true)
-        .secure(true)
-        .sameSite("Strict")
-        .path("/refresh")
-        .maxAge(0)
-        .build();
-    resp.addHeader(HttpHeaders.SET_COOKIE, delete.toString());
+    // Delete cookie
+    deleteRefreshCookie(resp);
 
     return ResponseEntity.ok().build();
+  }
+
+  private void deleteRefreshCookie(HttpServletResponse resp) {
+    addRefreshCookie(resp, "", Duration.ZERO);
+  }
+
+  private void addRefreshCookie(HttpServletResponse resp, String refreshToken, Duration maxAge) {
+    ResponseCookie cookie = ResponseCookie.from("refresh", refreshToken)
+        .httpOnly(true)
+        .secure(secureCookie)
+        .sameSite(secureCookie ? "Strict" : "Lax")
+        .path(secureCookie ? "/api/auth/refresh" : "/")
+        .maxAge(maxAge)
+        .build();
+
+    resp.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
   }
 
   @GetMapping("/validate")
@@ -148,26 +161,18 @@ public class AuthController {
     final Duration maxAge = Duration.ofDays(refreshTokenMaxAge);
     final String refreshToken = jwtService.createRefresh(dbUser, UUID.randomUUID(), device, maxAge);
 
-    ResponseCookie cookie = ResponseCookie.from("refresh", refreshToken)
-        .httpOnly(true)
-        .secure(true)          // true v produkci (HTTPS)
-        .sameSite("Strict")
-        .path("/refresh")
-        .maxAge(maxAge)
-        .build();
+    addRefreshCookie(resp, refreshToken, maxAge);
 
-    resp.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-    return ResponseEntity.ok(new TokenDto(accessToken));
+    return ResponseEntity.ok(new TokenDto(accessToken, dbUser.getEmail(), dbUser.getRoles().stream().map(Role::getName).toList()));
   }
 
-  @GetMapping("/verify")
-  public ResponseEntity<?> verifyToken(@RequestParam String token, HttpServletRequest req, HttpServletResponse resp) {
+  @GetMapping("/verify/{emailToken}")
+  public ResponseEntity<?> verifyToken(@PathVariable String emailToken, HttpServletRequest req, HttpServletResponse resp) {
 
     try {
-      log.info("Login attempt for token: {} from IP: {}", token, req.getRemoteAddr());
+      log.info("Login attempt for emailToken: {} from IP: {}", emailToken, req.getRemoteAddr());
 
-      MagicLinkToken linkToken = magicLinkService.verifyToken(token);
+      MagicLinkToken linkToken = magicLinkService.verifyToken(emailToken);
       Authentication authentication = authenticationManager.authenticate(
           new EmailAuthenticationToken(
               linkToken.getEmail()
@@ -181,7 +186,7 @@ public class AuthController {
 
       return createLoginResponseEntity(appUser.getDbUser(), req, resp);
     } catch (InvalidTokenException | ExpiredTokenException e) {
-      log.warn("Failed login attempt for token: {} from IP: {}", token, req.getRemoteAddr());
+      log.warn("Failed login attempt for token: {} from IP: {}", emailToken, req.getRemoteAddr());
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
     }
   }

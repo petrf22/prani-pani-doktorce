@@ -6,7 +6,6 @@ import cz.petrf.prani.security.AppUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,6 +20,8 @@ public class TextContentService {
   @Transactional
   public TextContent createTextContent(String content, AppUser appUser) {
     validateContent(content);
+
+    textContentRepository.deleteAllByUser(appUser.getDbUser());
 
     TextContent textContent = new TextContent();
     textContent.setUser(appUser.getDbUser());
@@ -47,8 +48,8 @@ public class TextContentService {
   }
 
   @Transactional(readOnly = true)
-  public List<TextContent> getAllTextContents(AppUser appUser) {
-    return textContentRepository.findAll();
+  public Optional<TextContent> findByUser(AppUser appUser) {
+    return textContentRepository.findByUser(appUser.getDbUser());
   }
 
   @Transactional

@@ -1,0 +1,18 @@
+
+<form nz-form [nzLayout]="'inline'" (ngSubmit)="submitForm()" #form="ngForm">
+   <nz-form-item>
+    <nz-form-label nzRequired>E-mail</nz-form-label>
+    <nz-form-control nzErrorTip="Zadejte vaši emailovou adresu">
+      <nz-input-wrapper>
+        <nz-icon nzInputPrefix nzType="email" />
+        <input nz-input [(ngModel)]="email" name="email" email required />
+      </nz-input-wrapper>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-control>
+      <button nz-button nzType="primary" [disabled]="!form.valid">Odeslat e-mail s přihlášením</button>
+    </nz-form-control>
+  </nz-form-item>
+</form>

@@ -9,8 +9,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/text")
@@ -91,9 +91,19 @@ public class TextContentController {
    * GET /api/text
    */
   @GetMapping
-  public ResponseEntity<List<TextContent>> getAllTextContents(@AuthenticationPrincipal AppUser appUser) {
-    List<TextContent> textContents = textContentService.getAllTextContents(appUser);
-    return ResponseEntity.ok(textContents);
+  public ResponseEntity<?> getAllTextContents(@AuthenticationPrincipal AppUser appUser) {
+    return textContentService.findByUser(appUser)
+        .map(textContent -> {
+          Map<String, Object> response = new HashMap<>();
+          response.put("id", textContent.getId());
+          response.put("content", textContent.getContent());
+          response.put("createdAt", textContent.getCreatedAt());
+          response.put("updatedAt", textContent.getUpdatedAt());
+
+          return ResponseEntity.ok(response);
+        })
+        .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(Map.of("message", "Uživatel nemá vytvořený text")));
   }
 
   /**

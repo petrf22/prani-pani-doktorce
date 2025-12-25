@@ -11,7 +11,11 @@ import java.util.Optional;
 public interface TextContentRepository extends JpaRepository<TextContent, Long> {
   Optional<TextContent> findByIdAndUser(Long id, User dbUser);
 
+  Optional<TextContent> findByUser(User dbUser);
+
   boolean existsByIdAndUser(Long id, User dbUser);
 
   void deleteByIdAndUser(Long id, User dbUser);
+
+  void deleteAllByUser(User appUser);
 }

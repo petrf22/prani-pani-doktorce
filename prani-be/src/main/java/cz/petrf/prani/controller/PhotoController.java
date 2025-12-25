@@ -15,6 +15,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -91,6 +95,13 @@ public class PhotoController {
           headers.setContentType(MediaType.parseMediaType(photo.getContentType()));
           headers.setContentLength(photo.getFileSize());
           headers.setContentDispositionFormData("inline", photo.getFileName());
+          headers.set("X-Photo-Id", photo.getId().toString());
+          headers.set("X-Photo-Filename", photo.getFileName());
+          // Převod data na RFC 1123 format
+          Instant uploadedAt = photo.getUploadedAt().atZone(ZoneId.systemDefault()).toInstant();
+          String rfc1123Date = DateTimeFormatter.RFC_1123_DATE_TIME.withZone(ZoneId.systemDefault())
+              .format(uploadedAt);
+          headers.set("X-Photo-Uploaded-At", rfc1123Date);
 
           try {
             return new ResponseEntity<>(blobToByteArray(photo.getData()), headers, HttpStatus.OK);
@@ -143,11 +154,12 @@ public class PhotoController {
   }
 
   public static byte[] blobToByteArray(Blob blob) throws SQLException, IOException {
-    if (blob == null) {
+    if (blob==null) {
       return null;
     }
 
     try (InputStream inputStream = blob.getBinaryStream()) {
       return inputStream.readAllBytes();
     }
-  }}
+  }
+}
