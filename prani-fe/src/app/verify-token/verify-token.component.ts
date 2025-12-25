@@ -29,7 +29,7 @@ export class VerifyTokenComponent {
           console.log('VerifyTokenComponent :: Verify token successfully:', response);
           // this.verifyInfo = 'E-mail byl úspěšně ověřen.';
 
-          this.router.navigate(['/prani']);
+          this.router.navigate(['/prani'], { replaceUrl: true });
         },
         error: (error) => {
           console.error('VerifyTokenComponent :: Error verifying token:', error);

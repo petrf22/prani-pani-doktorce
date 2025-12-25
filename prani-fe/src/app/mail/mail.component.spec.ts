@@ -1,18 +1,18 @@
 import { fakeAsync, ComponentFixture, TestBed } from '@angular/core/testing';
-import { PraniFormComponent } from './prani-form.component';
+import { MailComponent } from './mail.component';
 
-describe('PraniFormComponent', () => {
-  let component: PraniFormComponent;
-  let fixture: ComponentFixture<PraniFormComponent>;
+describe('MailComponent', () => {
+  let component: MailComponent;
+  let fixture: ComponentFixture<MailComponent>;
 
   beforeEach(fakeAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ PraniFormComponent ]
+      declarations: [ MailComponent ]
     })
     .compileComponents();
     ;
 
-    fixture = TestBed.createComponent(PraniFormComponent);
+    fixture = TestBed.createComponent(MailComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

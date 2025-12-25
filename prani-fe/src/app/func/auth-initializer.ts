@@ -1,14 +1,27 @@
 
 import { inject } from '@angular/core';
 import { UserService } from '../services/user-service';
-import { catchError, Observable } from 'rxjs';
+import { catchError, Observable, tap } from 'rxjs';
+import { Router } from '@angular/router';
 
 export function authInitializer(): () => void | Observable<unknown> | Promise<unknown> {
   return () => {
     const user = inject(UserService);
-    return user.refreshToken().pipe(catchError((error) => {
-      console.error('Auth Initializer :: Token refresh failed:', error);
-      return [];
-    }));
+    const router = inject(Router);
+
+    return user.refreshToken()
+      .pipe(
+        tap(token => {
+          console.log('Auth Initializer :: Token refreshed successfully');
+          if (token) {
+            router.navigate(['/prani'], { replaceUrl: true });
+          } else {
+            router.navigate(['/welcome'], { replaceUrl: true });
+          }
+        }),
+        catchError((error) => {
+          console.error('Auth Initializer :: Token refresh failed:', error);
+          return [];
+        }));
   };
 }

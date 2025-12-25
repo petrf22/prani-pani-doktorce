@@ -1,0 +1,50 @@
+<h1>Napište své přání</h1>
+
+<form nz-form (ngSubmit)="submitForm()" #form="ngForm">
+  <div nz-row nzGutter="16">
+    <div nz-col nzSpan="12">
+      <nz-form-item>
+        <nz-form-label nzRequired>Text přání</nz-form-label>
+        <nz-form-control nzHasFeedback nzErrorTip="Napište vaše přání">
+          <nz-textarea-count [nzMaxCharacterCount]="500">
+            <textarea [(ngModel)]="textPrani" name="textPrani" nz-input rows="3" placeholder="Text přání"
+              required></textarea>
+          </nz-textarea-count>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-control>
+          <button nz-button nzType="primary" [disabled]="!form.valid">Odeslat</button>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+
+    <div nz-col nzSpan="12">
+      <div nz-row>
+        <div nz-col>
+          <h3>Náhled:</h3>
+          <!-- <img [src]="previewUrl()" alt="náhled" style="max-width: 300px;" /> -->
+          <img nz-image [nzSrc]="previewUrl() || fallback" [nzFallback]="fallback" alt=""
+            style="max-width: 300px; max-height: 300px; width: auto; height: auto;" />
+        </div>
+      </div>
+      <div nz-row>
+        <div nz-col>
+          <nz-upload nzAction="/api/photo" (nzChange)="handleChange($event)" [nzBeforeUpload]="beforeUpload"
+            [nzFileList]="fileList()" [nzRemove]="removeFoto"
+            [nzShowUploadList]="{ showPreviewIcon: false, showRemoveIcon: true, showDownloadIcon: false }">
+            <button nz-button>
+              <nz-icon nzType="upload" />
+              Nahrát obrázek nebo fotografii
+            </button>
+          </nz-upload>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<!--
+textContent: {{ textContent() | json }}<br>
+fileList: {{ fileList() | json }}<br>
+-->

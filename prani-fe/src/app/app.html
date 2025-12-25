@@ -1,4 +1,4 @@
-<nz-layout class="app-layout">
+<!-- <nz-layout class="app-layout">
   <nz-sider class="menu-sidebar"
     nzCollapsible
     nzWidth="256px"
@@ -42,6 +42,19 @@
           <nz-icon class="trigger" [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'" />
         </span>
       </div>
+
+      <div class="header-content">
+        <div class="logo">
+          <h1 style="color: white; margin: 0;">
+            {{ (getRouteTitle() | async) || 'Moje Aplikace' }}
+          </h1>
+        </div>
+        <ul nz-menu nzTheme="dark" nzMode="horizontal">
+          <li nz-menu-item routerLink="/">Domů</li>
+          <li nz-menu-item routerLink="/products">Produkty</li>
+          <li nz-menu-item routerLink="/about">O nás</li>
+        </ul>
+      </div>
     </nz-header>
     <nz-content>
       <div class="inner-content">
@@ -49,4 +62,25 @@
       </div>
     </nz-content>
   </nz-layout>
+</nz-layout> -->
+
+<nz-layout>
+  <nz-header>
+    <!-- <div class="logo">
+      <h1 style="color: white; margin: 0;">
+        {{ (getRouteTitle() | async) || 'Moje Aplikace' }}
+      </h1>
+    </div> -->
+    <ul nz-menu nzTheme="dark" nzMode="horizontal">
+      <li nz-menu-item routerLink="/">Úvod</li>
+      <li nz-menu-item routerLink="/prani">Přání</li>
+      <li nz-menu-item routerLink="/onas">O nás</li>
+    </ul>
+  </nz-header>
+  <nz-content>
+    <div class="inner-content">
+      <router-outlet></router-outlet>
+    </div>
+  </nz-content>
+  <nz-footer>Vytvořil: Petr Franta © 2026, petr.franta@gmail.com</nz-footer>
 </nz-layout>

@@ -16,3 +16,12 @@
     </nz-form-control>
   </nz-form-item>
 </form>
+
+
+@if (sentInfo().sent) {
+  <nz-alert
+    [nzType]="sentInfo().error ? 'error' : 'success'"
+    [nzMessage]="sentInfo().message"
+    nzShowIcon
+  ></nz-alert>
+}

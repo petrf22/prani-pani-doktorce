@@ -11,28 +11,29 @@ import { NzImageModule } from 'ng-zorro-antd/image';
 import { NzResultModule } from 'ng-zorro-antd/result';
 
 @Component({
-  selector: 'app-mail-form',
+  selector: 'app-mail',
   imports: [FormsModule, NzFormModule, NzInputModule, NzInputModule, NzImageModule, NzAlertModule, NzButtonModule, NzResultModule, JsonPipe],
-  templateUrl: './mail-form.component.html',
-  styleUrls: ['./mail-form.component.css']
+  templateUrl: './mail.component.html',
+  styleUrls: ['./mail.component.css']
 })
-export class MailFormComponent {
+export class MailComponent {
   private userService = inject(UserService);
 
   email = '';
-  sentInfo = signal('');
+  sentInfo = signal<{message: string, error: boolean, sent: boolean}>({message: '', error: false, sent: false});
 
   submitForm(): void {
-    console.log('MailFormComponent :: submit :: email:', this.email);
+    console.log('MailComponent :: submit :: email:', this.email);
 
     this.userService.mailToken(this.email).subscribe({
       next: (response) => {
-        console.log('MailFormComponent :: Mail token sent successfully:', response);
-        this.sentInfo.set('E-mail byl úspěšně odeslán.');
+        console.log('MailComponent :: Mail token sent successfully:', response);
+
+        this.sentInfo.set({message: 'E-mail byl úspěšně odeslán.', error: false, sent: true});
       },
       error: (error) => {
-        console.error('MailFormComponent :: Error sending mail token:', error);
-        this.sentInfo.set('Chyba při odesílání e-mailu.');
+        console.error('MailComponent :: Error sending mail token:', error);
+        this.sentInfo.set({message: 'Chyba při odesílání e-mailu.', error: true, sent: true});
       }
     });
   }
