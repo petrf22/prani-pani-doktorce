@@ -18,4 +18,6 @@ public interface TextContentRepository extends JpaRepository<TextContent, Long> 
   void deleteByIdAndUser(Long id, User dbUser);
 
   void deleteAllByUser(User appUser);
+
+  void deleteByUser(User user);
 }

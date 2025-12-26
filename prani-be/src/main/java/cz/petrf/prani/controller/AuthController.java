@@ -9,6 +9,7 @@ import cz.petrf.prani.exception.InvalidTokenException;
 import cz.petrf.prani.security.*;
 import cz.petrf.prani.service.MagicLinkService;
 import cz.petrf.prani.service.UserDetailsServiceImpl;
+import cz.petrf.prani.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +26,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +45,7 @@ public class AuthController {
   private final UserDetailsServiceImpl userDetailsService;
   private final JwtService jwtService;
   private final MagicLinkService magicLinkService;
+  private final UserService userService;
 
   @Value("${app.refresh.token.max.age:90}")
   private int refreshTokenMaxAge;
@@ -114,18 +117,28 @@ public class AuthController {
 
   @PostMapping("/logout")
   public ResponseEntity<?> logout(@CookieValue(name = "refresh", required = false) String refreshToken,
+                                  @RequestParam("deleteAccount") boolean deleteAccount,
+                                  @AuthenticationPrincipal AppUser appUser,
                                   HttpServletResponse resp) {
+    Optional<User> userOpt = Optional.empty();
 
     if (refreshToken!=null) {
       try {
         String jti = jwtService.extractAllClaims(refreshToken).getId();
-        jwtService.revokeAllForUserByJti(UUID.fromString(jti));
+        UUID jtiUuid = UUID.fromString(jti);
+        jwtService.revokeAllForUserByJti(jtiUuid);
+
+        userOpt = jwtService.findByJti(jtiUuid);
       } catch (JwtException ignored) {
       }
     }
 
     // Delete cookie
     deleteRefreshCookie(resp);
+
+    if (userOpt.isPresent() && deleteAccount) {
+      userService.deleteUserAccount(userOpt.get());
+    }
 
     return ResponseEntity.ok().build();
   }
@@ -138,8 +151,8 @@ public class AuthController {
     ResponseCookie cookie = ResponseCookie.from("refresh", refreshToken)
         .httpOnly(true)
         .secure(secureCookie)
-        .sameSite(secureCookie ? "Strict" : "Lax")
-        .path(secureCookie ? "/api/auth/refresh" : "/")
+        .sameSite(secureCookie ? "Strict":"Lax")
+        .path(secureCookie ? "/api/auth/refresh":"/")
         .maxAge(maxAge)
         .build();
 

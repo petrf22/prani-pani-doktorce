@@ -3,6 +3,8 @@ package cz.petrf.prani.service;
 import cz.petrf.prani.db.entity.TextContent;
 import cz.petrf.prani.db.repo.TextContentRepository;
 import cz.petrf.prani.security.AppUser;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,6 +12,9 @@ import java.util.Optional;
 
 @Service
 public class TextContentService {
+
+  @Value("${app.validate.prani.max.len:350}")
+  private int praniMaxLen;
 
   private final TextContentRepository textContentRepository;
 
@@ -62,8 +67,12 @@ public class TextContentService {
   }
 
   private void validateContent(String content) {
-    if (content==null || content.trim().isEmpty()) {
+    if (StringUtils.isBlank(content)) {
       throw new IllegalArgumentException("Obsah nesmí být prázdný");
+    }
+
+    if (StringUtils.length(content) > praniMaxLen) {
+      throw new IllegalArgumentException("Text může být maximálně %d znaků dlouhý.".formatted(praniMaxLen));
     }
   }
 }

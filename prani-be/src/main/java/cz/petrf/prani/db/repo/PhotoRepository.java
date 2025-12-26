@@ -15,4 +15,6 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
   Optional<Photo> findByUser(User user);
 
   boolean existsByUser(User user);
+
+  void deleteByUser(User user);
 }

@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideAppInitializer, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, LOCALE_ID, provideAppInitializer, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -18,7 +18,9 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes), provideNzIcons(icons), provideNzI18n(cs_CZ), provideAnimationsAsync(), provideHttpClient(),
+    provideRouter(routes), provideNzIcons(icons),
+    { provide: LOCALE_ID, useValue: 'cs-CZ' },
+     provideNzI18n(cs_CZ), provideAnimationsAsync(), provideHttpClient(),
     provideHttpClient(withInterceptors([tokenInterceptor])),
     provideAppInitializer(authInitializer()),
   ]

@@ -27,7 +27,6 @@ public class UserRefreshToken {
   @Column(name = "jti", nullable = false, unique = true, columnDefinition = "UUID")
   private UUID jti;
 
-
   @Column(name = "device", length = 100)
   private String device;
 

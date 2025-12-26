@@ -146,15 +146,15 @@ export class UserService {
     return this.http.get('/api/photo/info');
   }
 
-  isAuthenticated(): boolean {
-    console.log('UserService :: isAuthenticated :: this.token() !== null:', this.token() !== null);
-    return this.token() !== null;
-  }
-
-  logout() {
+  logout(smazatUcet: boolean) {
     console.log('UserService :: logout');
     this.token.set(null);
-    return this.http.post('/api/auth/logout', {});
+
+    const formData = new FormData();
+
+    formData.append('deleteAccount', smazatUcet.toString());
+
+    return this.http.post('/api/auth/logout', formData);
   }
 
   refreshToken(): Observable<Token> {

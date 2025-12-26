@@ -1,10 +1,11 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { Observable, filter, map } from 'rxjs';
+import { UserService } from './services/user-service';
 
 @Component({
   selector: 'app-root',
@@ -13,9 +14,12 @@ import { Observable, filter, map } from 'rxjs';
   styleUrl: './app.scss'
 })
 export class App {
-  isCollapsed = false;
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
+  private userService = inject(UserService);
+
+  isCollapsed = false;
+  isAuthenticated = computed(() => this.userService.tokenSig() !== null);
 
   getRouteTitle(): Observable<string> {
     return this.router.events.pipe(

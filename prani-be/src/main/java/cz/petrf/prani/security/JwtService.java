@@ -132,9 +132,10 @@ public class JwtService {
     userRefreshTokenRepository.deleteAllByExpBefore(clock.instant());
   }
 
+  @Transactional
   public void revokeAllForUserByJti(UUID uuid) {
     int count = userRefreshTokenRepository.revokeAllByJit(uuid);
-    log.info("Pro tuken JIT: {} bylo zneplatněno {} refresh tokenů.", uuid, count);
+    log.info("Pro token JIT: {} bylo zneplatněno {} refresh tokenů.", uuid, count);
   }
 
   public String guessDevice(HttpServletRequest req) {
@@ -153,6 +154,7 @@ public class JwtService {
     return type + " / " + ip;
   }
 
+  @Transactional(readOnly = true)
   public Optional<User> findByJti(UUID uuid) {
     return userRefreshTokenRepository.findByJti(uuid).map(UserRefreshToken::getUser);
   }

@@ -9,7 +9,7 @@
 <h2>
 Jak to funguje?
 </h2>
-@if (userService.isAuthenticated()) {
+@if (userService.tokenSig()) {
   <!-- Verze pro přihlášené uživatele -->
   <ul>
     <li>Na stránce <a routerLink="/prani">přání</a> napište své přání k jejím narozeninám. Nezapomeňte se podepsat.</li>
@@ -33,6 +33,6 @@ Děkujeme za vaši účast!
 </p>
 
 <p>
-@if (!userService.isAuthenticated()) {
+@if (!!!userService.tokenSig()) {
   <app-mail></app-mail>
 }

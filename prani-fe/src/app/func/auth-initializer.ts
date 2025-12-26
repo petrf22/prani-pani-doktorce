@@ -16,7 +16,7 @@ export function authInitializer(): () => void | Observable<unknown> | Promise<un
           if (token) {
             router.navigate(['/prani'], { replaceUrl: true });
           } else {
-            router.navigate(['/welcome'], { replaceUrl: true });
+            router.navigate(['/'], { replaceUrl: true });
           }
         }),
         catchError((error) => {

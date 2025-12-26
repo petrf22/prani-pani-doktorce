@@ -1,0 +1,20 @@
+<form nz-form (ngSubmit)="submitForm()" #form="ngForm">
+  <div nz-row>
+    <div nz-col>
+      <label nz-checkbox [(ngModel)]="smazatUcet" name="smazatUcet">
+        <span>Smazat účet</span>
+      </label>
+    </div>
+    <div nz-col>
+      <div style="color: red; margin-left: 8px;">
+        Tato akce je nevratná a smaže všechny vaše údaje z této aplikace.
+      </div>
+    </div>
+  </div>
+  <nz-divider></nz-divider>
+  <div nz-row>
+    <div nz-col>
+      <button nz-button nzType="primary">Odhlásit se</button>
+    </div>
+  </div>
+</form>
