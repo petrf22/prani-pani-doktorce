@@ -1,33 +1,28 @@
-# Stage 1: Build frontend
-FROM node:20-alpine AS frontend-builder
+# Stage 1: Příprava Node.js pro Gradle
+FROM node:20-alpine AS node-provider
 
-WORKDIR /frontend
-
-COPY prani-fe/package*.json ./
-RUN npm install
-
-COPY prani-fe .
-RUN npm run build
-
-# Stage 2: Build backend
+# Stage 2: Build backend (s frontendendem)
 FROM eclipse-temurin:25-jdk-alpine AS backend-builder
 
-WORKDIR /build/prani-be
+# Instalace Node.js do JDK image
+COPY --from=node-provider /usr/lib /usr/lib
+COPY --from=node-provider /usr/local/lib /usr/local/lib
+COPY --from=node-provider /usr/local/include /usr/local/include
+COPY --from=node-provider /usr/local/bin /usr/local/bin
 
-COPY prani-be/gradlew .
-COPY prani-be/gradle gradle
-COPY prani-be/build.gradle prani-be/settings.gradle ./
+WORKDIR /build
+
+# Kopírování obou projektů
+COPY prani-be ./prani-be
+COPY prani-fe ./prani-fe
+
+WORKDIR /build/prani-be
 
 RUN chmod +x gradlew
 RUN ./gradlew dependencies --no-daemon || true
 
-COPY prani-be/src src
-
-# Kopírování frontend buildu do Spring Boot static resources
-COPY --from=frontend-builder /frontend/dist src/main/resources/static/
-
-# Build aplikace s frontendendem uvnitř
-RUN ./gradlew build -i --no-daemon -x test
+# Gradle se postará o npm install i build
+RUN ./gradlew fullBuild -i --no-daemon -x test
 
 # Stage 3: Runtime
 FROM eclipse-temurin:25-jre-alpine
