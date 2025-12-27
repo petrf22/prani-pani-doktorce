@@ -1,21 +1,35 @@
-# Stage 1: Build aplikace
-FROM eclipse-temurin:25-jdk-alpine AS builder
+# Stage 1: Build frontend
+FROM node:20-alpine AS frontend-builder
 
-WORKDIR /build
+WORKDIR /frontend
 
-# Kopírování celého backend projektu
-COPY prani-be ./prani-be
+COPY prani-fe/package*.json ./
+RUN npm install
 
-# Přesun do backend adresáře a build
+COPY prani-fe .
+RUN npm run build
+
+# Stage 2: Build backend
+FROM eclipse-temurin:25-jdk-alpine AS backend-builder
+
 WORKDIR /build/prani-be
 
-# Nastavení oprávnění pro gradlew
-RUN chmod +x gradlew
+COPY prani-be/gradlew .
+COPY prani-be/gradle gradle
+COPY prani-be/build.gradle prani-be/settings.gradle ./
 
-# Build aplikace
+RUN chmod +x gradlew
+RUN ./gradlew dependencies --no-daemon || true
+
+COPY prani-be/src src
+
+# Kopírování frontend buildu do Spring Boot static resources
+COPY --from=frontend-builder /frontend/dist src/main/resources/static/
+
+# Build aplikace s frontendendem uvnitř
 RUN ./gradlew build -i --no-daemon -x test
 
-# Stage 2: Runtime image
+# Stage 3: Runtime
 FROM eclipse-temurin:25-jre-alpine
 
 RUN apk add --no-cache curl
@@ -24,8 +38,7 @@ USER spring:spring
 
 WORKDIR /app
 
-# Kopírování JAR z build stage
-COPY --from=builder --chown=spring:spring /build/prani-be/build/libs/*.jar app.jar
+COPY --from=backend-builder --chown=spring:spring /build/prani-be/build/libs/*.jar app.jar
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
   CMD curl -f http://localhost:8080/actuator/health || exit 1
