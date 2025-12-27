@@ -14,8 +14,12 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.resilience.annotation.Retryable;
+import org.springframework.retry.RetryContext;
+import org.springframework.retry.support.RetrySynchronizationManager;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -31,10 +35,17 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class MagicLinkService {
+  private static final int MAX_RETRIES = 3;
+  private static final long RETRY_DELAY_MS = 1000;
+
   @Value("${app.magic-link.expiration-minutes:15}")
   private int expirationMinutes;
   @Value("${app.magic-link.token-url:http://localhost:4200/verify-token/}")
   private String tokenUrl;
+  @Value("${app.magic-link.mail.from:petr.franta@gmail.com}")
+  private String mailFrom;
+  @Value("${app.magic-link.mail.subject:Přání paní doktorce - přihlášení do aplikace}")
+  private String mailSubject;
 
   private final MagicLinkTokenRepository magicLinkRepository;
   private final JavaMailSender mailSender;
@@ -43,36 +54,25 @@ public class MagicLinkService {
   private final UserRepository userRepo;
   private final RoleRepository roleRepo;
 
-  @Async("emailTaskExecutor")
+  @Retryable(value = {MailException.class}, maxRetries = MAX_RETRIES, delay = RETRY_DELAY_MS)
   public void sendMagicLink(String email) {
     // Generování magic linku
     String token = generateMagicLink(email);
     String magicLink = tokenUrl + token;
-
     log.debug("magicLink: {}", magicLink);
+    String htmlContent = createMagicLinkEmail(magicLink, email);
+    log.trace("htmlContent: {}", htmlContent);
 
-    // Příprava šablony
+    sendHtmlEmail(email, htmlContent);
+  }
+
+  private String createMagicLinkEmail(String magicLink, String email) {
     Context context = new Context();
     context.setVariable("magicLink", magicLink);
-    context.setVariable("expirationMinutes", 15);
+    context.setVariable("expirationMinutes", expirationMinutes);
     context.setVariable("userEmail", email);
 
-    String htmlContent = templateEngine.process("magic-link-email", context);
-
-    // Odeslání
-    MimeMessage message = mailSender.createMimeMessage();
-    try {
-      MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-      helper.setTo(email);
-      helper.setSubject("Přihlašovací odkaz do aplikace");
-      helper.setText(htmlContent, true);
-
-      mailSender.send(message);
-      log.info("Magic link email sent to: {}", email);
-    } catch (MessagingException e) {
-      log.error("Failed to send magic link email to: {}", email, e);
-      throw new EmailException("Failed to send magic link email");
-    }
+    return templateEngine.process("email/magic-link-email", context);
   }
 
   private String generateMagicLink(String email) {
@@ -120,4 +120,27 @@ public class MagicLinkService {
       userRepo.save(user);
     }
   }
+
+  private void sendHtmlEmail(String toEmail, String htmlContent) {
+    MimeMessage message = mailSender.createMimeMessage();
+
+    try {
+      MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+      helper.setFrom(mailFrom);
+      helper.setTo(toEmail);
+      helper.setSubject(mailSubject);
+      helper.setText(htmlContent, true);
+
+      mailSender.send(message);
+      log.info("Magic link byl odeslán na email: {}", toEmail);
+    } catch (MessagingException e) {
+      int retryCount = Optional.ofNullable(RetrySynchronizationManager.getContext())
+          .map(RetryContext::getRetryCount)
+          .orElse(1);
+
+      log.error("Chyba při odeslání emailu s přihlášením k aplikaci na adresu: {}, retrying... Attempt: {}", toEmail, retryCount, e);
+      throw new EmailException("Chyba při odeslání emailu s přihlášením k aplikaci");
+    }
+  }
 }
+
