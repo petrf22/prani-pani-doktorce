@@ -1,0 +1,29 @@
+# Build artifacts
+build/
+target/
+bin/
+.gradle/
+
+# Frontend
+prani-fe/node_modules/
+prani-fe/dist/
+prani-fe/.next/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# Git
+.git/
+.gitignore
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
