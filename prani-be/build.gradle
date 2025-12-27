@@ -105,6 +105,24 @@ tasks.named('asciidoctor') {
 }
 
 tasks.register('npmBuild', NpmTask) {
+    workingDir = file("${project.projectDir}/../prani-fe")
     args = ['run', 'build']
     dependsOn tasks.named('npmInstall')
+}
+
+tasks.register('fullBuild') {
+    dependsOn 'npmBuild', 'build'
+
+    tasks.named('build').configure {
+        mustRunAfter 'npmBuild'
+    }
+}
+
+tasks.named('processResources') {
+    dependsOn 'npmBuild'
+
+    // Volitelně - zkopírovat frontend build do static resources
+    from('frontend/dist') {
+        into 'static'
+    }
 }
