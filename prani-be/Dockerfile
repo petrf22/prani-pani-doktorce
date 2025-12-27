@@ -22,7 +22,7 @@ RUN chmod +x gradlew
 RUN ./gradlew dependencies --no-daemon || true
 
 # Gradle se postará o npm install i build
-RUN ./gradlew fullBuild -i --no-daemon -x test
+RUN ./gradlew build -i --no-daemon -x test
 
 # Stage 3: Runtime
 FROM eclipse-temurin:25-jre-alpine
