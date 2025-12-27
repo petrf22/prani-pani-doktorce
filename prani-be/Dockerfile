@@ -3,44 +3,35 @@ FROM eclipse-temurin:25-jdk-alpine AS builder
 
 WORKDIR /build
 
-# Kopírování Gradle wrapperu a závislostí
-COPY gradlew .
-COPY gradle gradle
-COPY build.gradle settings.gradle ./
+# Kopírování celého backend projektu
+COPY prani-be ./prani-be
 
-# Stažení závislostí (cachování)
-RUN ./gradlew dependencies --no-daemon || true
+# Přesun do backend adresáře a build
+WORKDIR /build/prani-be
 
-# Kopírování zdrojového kódu
-COPY src src
-COPY ../prani-fe ../prani-fe
+# Nastavení oprávnění pro gradlew
+RUN chmod +x gradlew
 
-# Build aplikace (včetně frontendu)
-RUN ./gradlew fullBuild --no-daemon -x test
+# Build aplikace
+RUN ./gradlew build -i --no-daemon -x test
 
 # Stage 2: Runtime image
 FROM eclipse-temurin:25-jre-alpine
 
-# Instalace curl pro healthcheck
 RUN apk add --no-cache curl
-
-# Non-root uživatel
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 
 WORKDIR /app
 
 # Kopírování JAR z build stage
-COPY --from=builder --chown=spring:spring /build/build/libs/*.jar app.jar
+COPY --from=builder --chown=spring:spring /build/prani-be/build/libs/*.jar app.jar
 
-# Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
   CMD curl -f http://localhost:8080/actuator/health || exit 1
 
-# Expose port
 EXPOSE 8080
 
-# JVM optimalizace pro kontejner
 ENTRYPOINT ["java", \
     "-XX:+UseContainerSupport", \
     "-XX:MaxRAMPercentage=75.0", \
