@@ -48,30 +48,14 @@ public class SecurityConfig {
         .csrf(AbstractHttpConfigurer::disable)
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .authorizeHttpRequests(authz -> authz
-            // Povolení statických souborů pro Angular aplikaci
-            .requestMatchers(
-                "/",
-                "/index.html",
-                "/**/*.js",
-                "/**/*.css",
-                "/**/*.ico",
-                "/**/*.png",
-                "/**/*.jpg",
-                "/**/*.jpeg",
-                "/**/*.gif",
-                "/**/*.svg",
-                "/**/*.woff",
-                "/**/*.woff2",
-                "/**/*.ttf",
-                "/**/*.eot",
-                "/assets/**"
-            ).permitAll()            // API endpointy
             .requestMatchers("/api/auth/**").permitAll()
             .requestMatchers("/actuator/health/**", "/actuator/info/**").permitAll()
+            .requestMatchers("/api/**").authenticated()
             //.requestMatchers("/api/admin/**").hasRole("ADMIN")
             //.requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
             // Všechny ostatní požadavky vyžadují autentizaci
-            .anyRequest().authenticated()
+            //.anyRequest().authenticated()
+            .anyRequest().permitAll()
         )
         .sessionManagement(sess -> sess
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
