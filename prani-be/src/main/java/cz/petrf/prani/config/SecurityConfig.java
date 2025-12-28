@@ -53,11 +53,25 @@ public class SecurityConfig {
         .csrf(AbstractHttpConfigurer::disable)
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .authorizeHttpRequests(authz -> authz
+            // Povolení statických souborů pro Angular aplikaci
+            .requestMatchers(
+                "/",
+                "/index.html",
+                "/*.js",
+                "/*.css",
+                "/*.ico",
+                "/*.png",
+                "/*.jpg",
+                "/*.svg",
+                "/assets/**",
+                "/static/**"
+            ).permitAll()
+            // API endpointy
             .requestMatchers("/api/auth/**").permitAll()
             .requestMatchers("/actuator/health/**", "/actuator/info/**").permitAll()
             //.requestMatchers("/api/admin/**").hasRole("ADMIN")
             //.requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
-            //.anyRequest().permitAll()
+            // Všechny ostatní požadavky vyžadují autentizaci
             .anyRequest().authenticated()
         )
         .sessionManagement(sess -> sess
@@ -67,15 +81,15 @@ public class SecurityConfig {
 
     return http.build();
   }
-
   public UrlBasedCorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
     config.setAllowCredentials(true);                                  // cookies, JWT
     config.setAllowedOrigins(List.of("http://localhost:4200", "http://127.0.0.1:4200"));
-    config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(List.of("*"));
     config.setExposedHeaders(List.of("Authorization"));                // pokud posíláte JWT v hlavičce
     UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
     src.registerCorsConfiguration("/**", config);
     return src;
-  }}
+  }
+}
