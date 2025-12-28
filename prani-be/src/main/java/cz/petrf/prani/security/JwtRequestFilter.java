@@ -19,6 +19,7 @@ import java.io.IOException;
 public class JwtRequestFilter extends OncePerRequestFilter {
 
   public static final String BEARER = "Bearer ";
+
   @Autowired
   private UserDetailsServiceImpl userDetailsService;
 
@@ -29,16 +30,21 @@ public class JwtRequestFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request,
                                   HttpServletResponse response,
                                   FilterChain chain) throws ServletException, IOException {
+
     String path = request.getServletPath();
 
-    //return path.equals("/api/login") || path.startsWith("/api/public/");
+    // Přeskoč JWT validaci pro statické soubory a veřejné endpointy
+    if (shouldNotFilter(request)) {
+      chain.doFilter(request, response);
+      return;
+    }
 
     final String authorizationHeader = request.getHeader("Authorization");
 
     String username = null;
     String jwt = null;
 
-    if (authorizationHeader!=null && authorizationHeader.startsWith(BEARER)) {
+    if (authorizationHeader != null && authorizationHeader.startsWith(BEARER)) {
       try {
         jwt = authorizationHeader.substring(BEARER.length());
         username = jwtService.extractUsername(jwt);
@@ -47,7 +53,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
       }
     }
 
-    if (username!=null && SecurityContextHolder.getContext().getAuthentication()==null) {
+    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
       UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
       if (jwtService.validateToken(jwt, userDetails)) {
@@ -59,5 +65,30 @@ public class JwtRequestFilter extends OncePerRequestFilter {
       }
     }
     chain.doFilter(request, response);
+  }
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    String path = request.getServletPath();
+
+    // Přeskoč JWT validaci pro:
+    return path.equals("/") ||
+        path.equals("/index.html") ||
+        path.endsWith(".js") ||
+        path.endsWith(".css") ||
+        path.endsWith(".ico") ||
+        path.endsWith(".png") ||
+        path.endsWith(".jpg") ||
+        path.endsWith(".jpeg") ||
+        path.endsWith(".gif") ||
+        path.endsWith(".svg") ||
+        path.endsWith(".woff") ||
+        path.endsWith(".woff2") ||
+        path.endsWith(".ttf") ||
+        path.endsWith(".eot") ||
+        path.startsWith("/assets/") ||
+        path.startsWith("/api/auth/") ||
+        path.startsWith("/actuator/health") ||
+        path.startsWith("/actuator/info");
   }
 }
