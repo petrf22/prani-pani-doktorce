@@ -2,13 +2,11 @@ package cz.petrf.prani.config;
 
 import cz.petrf.prani.security.EmailAuthenticationProvider;
 import cz.petrf.prani.security.JwtRequestFilter;
-import cz.petrf.prani.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -30,7 +28,6 @@ import java.util.List;
 public class SecurityConfig {
 
   private final JwtRequestFilter jwtRequestFilter;
-  private final UserDetailsServiceImpl userDetailsService;
   private final EmailAuthenticationProvider emailProvider;
 
   @Bean
@@ -39,16 +36,14 @@ public class SecurityConfig {
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration config, HttpSecurity http) {
+  public AuthenticationManager authenticationManager(HttpSecurity http) {
     return http.getSharedObject(AuthenticationManagerBuilder.class)
         .authenticationProvider(emailProvider)
         .build();
-
-    //return config.getAuthenticationManager();
   }
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain filterChain(HttpSecurity http) {
     http
         .csrf(AbstractHttpConfigurer::disable)
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -57,16 +52,20 @@ public class SecurityConfig {
             .requestMatchers(
                 "/",
                 "/index.html",
-                "/*.js",
-                "/*.css",
-                "/*.ico",
-                "/*.png",
-                "/*.jpg",
-                "/*.svg",
-                "/assets/**",
-                "/static/**"
-            ).permitAll()
-            // API endpointy
+                "/**/*.js",
+                "/**/*.css",
+                "/**/*.ico",
+                "/**/*.png",
+                "/**/*.jpg",
+                "/**/*.jpeg",
+                "/**/*.gif",
+                "/**/*.svg",
+                "/**/*.woff",
+                "/**/*.woff2",
+                "/**/*.ttf",
+                "/**/*.eot",
+                "/assets/**"
+            ).permitAll()            // API endpointy
             .requestMatchers("/api/auth/**").permitAll()
             .requestMatchers("/actuator/health/**", "/actuator/info/**").permitAll()
             //.requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -81,6 +80,7 @@ public class SecurityConfig {
 
     return http.build();
   }
+
   public UrlBasedCorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
     config.setAllowCredentials(true);                                  // cookies, JWT
