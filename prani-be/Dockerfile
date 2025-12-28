@@ -3,10 +3,10 @@ FROM node:24-alpine AS frontend-builder
 
 WORKDIR /frontend
 
-COPY prani-fe/package*.json ./
-RUN npm install
-
+#COPY prani-fe/package*.json ./
 COPY prani-fe .
+RUN npm install
+RUN npm run build
 
 # Stage 2: Build backend
 FROM eclipse-temurin:25-jdk-alpine AS backend-builder
@@ -21,11 +21,10 @@ RUN chmod +x gradlew
 RUN ./gradlew dependencies --no-daemon || true
 
 COPY prani-be/src src
-
 # Zkopírování Angular buildu do static adresáře
 COPY --from=frontend-builder /frontend/dist/browser ./src/main/resources/static
 
-# Build aplikace - gradle se postará o npm build
+# Build aplikace - backend
 RUN ./gradlew build -i --no-daemon -x test
 
 # Stage 3: Runtime
