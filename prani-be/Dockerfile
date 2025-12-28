@@ -8,6 +8,12 @@ COPY prani-fe .
 RUN npm install
 RUN npm run build
 
+# Debug - zjistíme strukturu adresářů
+RUN echo "=== Obsah /frontend ===" && ls -la /frontend
+RUN echo "=== Obsah /frontend/dist ===" && ls -la /frontend/dist || echo "dist neexistuje"
+RUN echo "=== Obsah /frontend/dist/browser ===" && ls -la /frontend/dist/browser || echo "dist/browser neexistuje"
+RUN find /frontend -name "index.html" -type f
+
 # Stage 2: Build backend
 FROM eclipse-temurin:25-jdk-alpine AS backend-builder
 
