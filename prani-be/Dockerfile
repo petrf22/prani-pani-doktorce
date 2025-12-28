@@ -22,8 +22,8 @@ RUN ./gradlew dependencies --no-daemon || true
 
 COPY prani-be/src src
 
-# Kopírování celého frontend projektu pro gradle npm task
-COPY --from=frontend-builder /frontend ../prani-fe
+# Zkopírování Angular buildu do static adresáře
+COPY --from=frontend-builder /frontend/dist/browser ./src/main/resources/static
 
 # Build aplikace - gradle se postará o npm build
 RUN ./gradlew build -i --no-daemon -x test
