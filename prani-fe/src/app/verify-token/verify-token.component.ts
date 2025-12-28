@@ -33,7 +33,7 @@ export class VerifyTokenComponent {
           console.log('VerifyTokenComponent :: Verify token successfully:', response);
           this.messageService.success('E-mail byl úspěšně ověřen.');
 
-          this.router.navigate(['/prani'], { replaceUrl: true });
+          this.router.navigate(['/'], { replaceUrl: true });
         },
         error: (error) => {
           this.errorVerify = true;
