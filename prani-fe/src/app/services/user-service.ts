@@ -12,13 +12,13 @@ export class UserService {
   private http = inject(HttpClient);
   private token = signal<Token | null>(null);
 
-  mailToken(email: string) {
+  mailToken(email: string): Observable<void> {
     console.log('UserService :: mailToken :: email:', email);
 
     const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
     const params = new HttpParams().set('email', email);
 
-    return this.http.post('/api/auth/mail-token', params, { headers });
+    return this.http.post<void>('/api/auth/mail-token', params, { headers });
   }
 
   verifyToken(emailToken: string) {

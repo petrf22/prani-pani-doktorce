@@ -212,10 +212,10 @@ public class AuthController {
 
       magicLinkService.sendMagicLink(email);
 
-      return ResponseEntity.status(HttpStatus.OK).body("Send email successfully");
+      return ResponseEntity.ok().build();
     } catch (EmailException e) {
       log.warn("Failed send attempt for email: {} from IP: {}", email, req.getRemoteAddr());
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Send email error");
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
   }
 }

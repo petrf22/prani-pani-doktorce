@@ -26,8 +26,8 @@ export class MailComponent {
     console.log('MailComponent :: submit :: email:', this.email);
 
     this.userService.mailToken(this.email).subscribe({
-      next: (response) => {
-        console.log('MailComponent :: Mail token sent successfully:', response);
+      next: () => {
+        console.log('MailComponent :: Mail token sent successfully.');
 
         this.sentInfo.set({message: 'E-mail byl úspěšně odeslán.', error: false, sent: true});
       },
