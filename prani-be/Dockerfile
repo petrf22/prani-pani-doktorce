@@ -9,10 +9,10 @@ RUN npm install
 RUN npm run build
 
 # Debug - zjistíme strukturu adresářů
-RUN echo "=== Obsah /frontend ===" && ls -la /frontend
-RUN echo "=== Obsah /frontend/dist ===" && ls -la /frontend/dist || echo "dist neexistuje"
-RUN echo "=== Obsah /frontend/dist/browser ===" && ls -la /frontend/dist/browser || echo "dist/browser neexistuje"
-RUN find /frontend -name "index.html" -type f
+#RUN echo "=== Obsah /frontend ===" && ls -la /frontend
+#RUN echo "=== Obsah /frontend/dist ===" && ls -la /frontend/dist || echo "dist neexistuje"
+#RUN echo "=== Obsah /frontend/dist/browser ===" && ls -la /frontend/dist/browser || echo "dist/browser neexistuje"
+#RUN find /frontend -name "index.html" -type f
 
 # Stage 2: Build backend
 FROM eclipse-temurin:25-jdk-alpine AS backend-builder
@@ -28,7 +28,7 @@ RUN ./gradlew dependencies --no-daemon || true
 
 COPY prani-be/src src
 # Zkopírování Angular buildu do static adresáře
-COPY --from=frontend-builder /frontend/dist/browser ./src/main/resources/static
+COPY --from=frontend-builder /frontend/dist/prani-fe/browser ./src/main/resources/static
 
 # Build aplikace - backend
 RUN ./gradlew build -i --no-daemon -x test
