@@ -13,24 +13,24 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class EmailAuthenticationProvider implements AuthenticationProvider {
 
-    private final UserDetailsService userDetailsService;   // váš servis, načte podle e-mailu
+  private final UserDetailsService userDetailsService;   // váš servis, načte podle e-mailu
 
-    @Override
-    public Authentication authenticate(Authentication auth) throws AuthenticationException {
-        String email = (String) auth.getPrincipal();
+  @Override
+  public Authentication authenticate(Authentication auth) throws AuthenticationException {
+    String email = (String) auth.getPrincipal();
 
-        UserDetails user = userDetailsService.loadUserByUsername(email);
-        if (user == null) {
-            throw new BadCredentialsException("Neznámý e-mail");
-        }
-
-        return new EmailAuthenticationToken(
-                email,
-                user.getAuthorities());
+    UserDetails user = userDetailsService.loadUserByUsername(email);
+    if (user==null) {
+      throw new BadCredentialsException("Neznámý e-mail");
     }
 
-    @Override
-    public boolean supports(Class<?> authentication) {
-        return EmailAuthenticationToken.class.isAssignableFrom(authentication);
-    }
+    return new EmailAuthenticationToken(
+        email,
+        user.getAuthorities());
+  }
+
+  @Override
+  public boolean supports(Class<?> authentication) {
+    return EmailAuthenticationToken.class.isAssignableFrom(authentication);
+  }
 }
