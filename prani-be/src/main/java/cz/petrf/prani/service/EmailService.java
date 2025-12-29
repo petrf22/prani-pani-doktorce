@@ -32,7 +32,7 @@ public class EmailService {
 
   @Value("${spring.mail.from:prani@prani.cz}")
   private String fromEmailDefault;
-  @Value("${app.mail.resend.api.key}")
+  @Value("${app.mail.resend.api.key:}")
   private String resendApiKey;
 
   private final JavaMailSender mailSender;
@@ -135,8 +135,7 @@ public class EmailService {
 
   @PostConstruct
   public void postConstruct() {
-    if (StringUtils.isNotBlank(resendApiKey)) {
-      resendOpt = Optional.of(new Resend(StringUtils.trimToNull(resendApiKey)));
-    }
+    resendOpt = Optional.ofNullable(StringUtils.trimToNull(resendApiKey))
+        .map(Resend::new);
   }
 }
