@@ -15,28 +15,46 @@ import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { UserService } from '../services/user-service';
 import { Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 
 @Component({
   selector: 'app-logout-component',
   imports: [FormsModule, NzFormModule, NzInputModule, NzInputModule, NzImageModule, NzAlertModule, NzButtonModule,
-    NzResultModule, NzUploadModule, NzIconModule, NzDividerModule, NzGridModule, NzCheckboxModule, NzDividerModule],
+    NzResultModule, NzUploadModule, NzIconModule, NzDividerModule, NzGridModule, NzCheckboxModule, NzDividerModule,
+    NzModalModule],
   templateUrl: './logout.component.html',
   styleUrl: './logout.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LogoutComponent {
+  readonly smazatUcetInfo = "Tato akce je nevratná a smaže všechny vaše údaje z této aplikace.";
+
   private userService = inject(UserService);
   private router = inject(Router);
   private messageService = inject(NzMessageService);
+  private modalService = inject(NzModalService);
 
   smazatUcet = false
 
   submitForm() {
+    this.modalService.confirm({
+      nzTitle: this.smazatUcet ? 'Potvrzení smazání účtu' : 'Potvrzení odhlášení',
+      nzContent: this.smazatUcet ? `<b style="color: red;">${this.smazatUcetInfo}</b>` : 'Pro nové přihlášení budete potřebovat ověření přes e-mail',
+      nzOkText: 'Ano',
+      nzOkType: 'primary',
+      nzOkDanger: true,
+      nzOnOk: () => this.logout(),
+      nzCancelText: 'Ne',
+      nzOnCancel: () => console.log('Cancel')
+    });
+  }
+
+  logout(): void {
     this.userService.logout(this.smazatUcet).subscribe({
       next: (response) => {
         console.log('LogoutComponent :: Logout successful:', response);
 
-        this.messageService.success('Odhlášení proběhlo úspěšně.');
+        this.messageService.success(this.smazatUcet ? 'Smazání účtu proběhlo úspěšně.' : 'Odhlášení proběhlo úspěšně.');
 
         this.router.navigate(['/'], { replaceUrl: true });
       },
