@@ -19,6 +19,7 @@ databaseChangeLog:
   - changeSet:
       id: 40-seed-admin-user
       author: seed
+      context: dev          # spustí se jen když je v contexts "dev" (spring.liquibase.contexts=dev)
       changes:
         - insert:
             tableName: users
@@ -37,6 +38,7 @@ databaseChangeLog:
   - changeSet:
       id: 50-seed-demo-users
       author: seed
+      context: dev          # spustí se jen když je v contexts "dev" (spring.liquibase.contexts=dev)
       changes:
         - loadData:
             tableName: users

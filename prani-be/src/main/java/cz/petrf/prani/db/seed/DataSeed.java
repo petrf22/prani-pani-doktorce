@@ -7,6 +7,7 @@ import cz.petrf.prani.db.repo.RoleRepository;
 import cz.petrf.prani.db.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,7 @@ import java.util.stream.IntStream;
 
 @Component
 @RequiredArgsConstructor
+@Profile("dev")
 public class DataSeed {
 
   private final UserRepository users;
