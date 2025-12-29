@@ -1,5 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, signal, ViewChild } from '@angular/core';
+import { FormsModule, NgForm } from '@angular/forms';
 
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
@@ -19,6 +19,8 @@ import { NzResultModule } from 'ng-zorro-antd/result';
 export class MailComponent {
   private userService = inject(UserService);
 
+  @ViewChild('form') formRef!: NgForm;
+
   email = '';
   sentInfo = signal<{message: string, error: boolean, sent: boolean}>({message: '', error: false, sent: false});
 
@@ -29,6 +31,8 @@ export class MailComponent {
       next: () => {
         console.log('MailComponent :: Mail token sent successfully.');
 
+        this.formRef.form.markAsPristine();
+        this.formRef.form.markAsUntouched();
         this.sentInfo.set({message: 'E-mail byl úspěšně odeslán.', error: false, sent: true});
       },
       error: (error) => {
