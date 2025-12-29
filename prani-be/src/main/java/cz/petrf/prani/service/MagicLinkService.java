@@ -28,7 +28,6 @@ import java.util.UUID;
 @Slf4j
 public class MagicLinkService {
   private static final int MAX_RETRIES = 3;
-  private static final long RETRY_DELAY_MS = 1000;
 
   @Value("${app.magic-link.expiration-minutes:15}")
   private int expirationMinutes;
@@ -45,12 +44,12 @@ public class MagicLinkService {
   private final UserRepository userRepo;
   private final RoleRepository roleRepo;
 
-  @Retryable(value = {MailException.class}, maxRetries = MAX_RETRIES, delay = RETRY_DELAY_MS)
+  @Retryable(value = {MailException.class}, maxRetries = MAX_RETRIES)
   public void sendMagicLink(String email) {
     // Generování magic linku
     String token = generateMagicLink(email);
     String magicLink = tokenUrl + token;
-    log.debug("magicLink: {}", magicLink);
+    log.info("magicLink: {}", magicLink);
     String htmlContent = createMagicLinkEmail(magicLink, email);
     log.trace("htmlContent: {}", htmlContent);
 

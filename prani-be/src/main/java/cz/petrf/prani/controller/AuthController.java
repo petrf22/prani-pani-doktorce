@@ -26,7 +26,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
@@ -56,7 +55,7 @@ public class AuthController {
   public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletRequest req, HttpServletResponse resp) {
 
     try {
-      log.info("Login attempt for user: {} from IP: {}", loginRequest.getUsername(), req.getRemoteAddr());
+      log.info("login :: Login attempt for user: {} from IP: {}", loginRequest.getUsername(), req.getRemoteAddr());
 
       Authentication authentication = authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(
@@ -68,11 +67,11 @@ public class AuthController {
       SecurityContextHolder.getContext().setAuthentication(authentication);
 
       final AppUser appUser = userDetailsService.loadUserByUsername(loginRequest.getUsername());
-      log.info("Successful login for user: {}", loginRequest.getUsername());
+      log.info("login :: Successful login for user: {}", loginRequest.getUsername());
 
       return createLoginResponseEntity(appUser.getDbUser(), req, resp);
     } catch (BadCredentialsException e) {
-      log.warn("Failed login attempt for user: {} from IP: {}", loginRequest.getUsername(), req.getRemoteAddr());
+      log.warn("login :: Failed login attempt for user: {} from IP: {}", loginRequest.getUsername(), req.getRemoteAddr());
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
     }
   }
@@ -80,6 +79,7 @@ public class AuthController {
   @PostMapping("/refresh")
   public ResponseEntity<?> refresh(@CookieValue(name = "refresh", required = false) String refreshToken,
                                    HttpServletRequest req, HttpServletResponse resp) {
+    log.info("refresh :: refreshToken==null: {}", refreshToken==null);
 
     /* 1. chybí cookie */
     if (refreshToken==null) {
@@ -93,11 +93,13 @@ public class AuthController {
 
       /* 1. chybí JIT */
       if (jtiOpt.isEmpty()) {
+        log.info("refresh :: jtiOpt.isEmpty(): true");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
       }
 
       /* 3. blacklist */
       if (!jwtService.isValid(jtiOpt.get())) {
+        log.info("refresh :: jwtService.isValid(jtiOpt.get()): {}", jwtService.isValid(jtiOpt.get()));
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
       }
 
@@ -105,12 +107,13 @@ public class AuthController {
       Optional<User> userOpt = jwtService.findByJti(jtiOpt.get());
 
       if (userOpt.isEmpty()) {
+        log.info("refresh :: userOpt.isEmpty(): true");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
       }
 
       return createLoginResponseEntity(userOpt.get(), req, resp);
     } catch (JwtException | UsernameNotFoundException ex) {
-      log.error("Chyba refresh tokenu", ex);
+      log.error("refresh :: Chyba refresh tokenu", ex);
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
   }
@@ -118,8 +121,8 @@ public class AuthController {
   @PostMapping("/logout")
   public ResponseEntity<?> logout(@CookieValue(name = "refresh", required = false) String refreshToken,
                                   @RequestParam("deleteAccount") boolean deleteAccount,
-                                  @AuthenticationPrincipal AppUser appUser,
                                   HttpServletResponse resp) {
+    log.info("logout :: deleteAccount: {}, refreshToken!=null: {}", deleteAccount, refreshToken!=null);
     Optional<User> userOpt = Optional.empty();
 
     if (refreshToken!=null) {
@@ -129,15 +132,19 @@ public class AuthController {
         jwtService.revokeAllForUserByJti(jtiUuid);
 
         userOpt = jwtService.findByJti(jtiUuid);
+        log.info("logout :: user email:: {}", userOpt.map(User::getEmail).orElse(null));
       } catch (JwtException ignored) {
+        log.warn("logout :: nepodařilo se zpracovat token z cookies");
       }
     }
 
     // Delete cookie
     deleteRefreshCookie(resp);
+    log.info("logout :: voláno: deleteRefreshCookie(...)");
 
     if (userOpt.isPresent() && deleteAccount) {
       userService.deleteUserAccount(userOpt.get());
+      log.info("logout :: voláno: userService.deleteUserAccount(...)");
     }
 
     return ResponseEntity.ok().build();
@@ -156,11 +163,14 @@ public class AuthController {
         .maxAge(maxAge)
         .build();
 
+    log.info("addRefreshCookie :: cookie: {}", cookie);
+
     resp.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
   }
 
   @GetMapping("/validate")
   public ResponseEntity<?> validateToken() {
+    log.info("validate :: validateToken()");
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     if (auth!=null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
       return ResponseEntity.ok().build();
@@ -183,7 +193,7 @@ public class AuthController {
   public ResponseEntity<?> verifyToken(@PathVariable String emailToken, HttpServletRequest req, HttpServletResponse resp) {
 
     try {
-      log.info("Login attempt for emailToken: {} from IP: {}", emailToken, req.getRemoteAddr());
+      log.info("verify :: Login attempt for emailToken: {} from IP: {}", emailToken, req.getRemoteAddr());
 
       MagicLinkToken linkToken = magicLinkService.verifyToken(emailToken);
       Authentication authentication = authenticationManager.authenticate(
@@ -195,17 +205,17 @@ public class AuthController {
       SecurityContextHolder.getContext().setAuthentication(authentication);
 
       final AppUser appUser = userDetailsService.loadUserByUsername(linkToken.getEmail());
-      log.info("Successful login for user email: {}", linkToken.getEmail());
+      log.info("verify :: Successful login for user email: {}", linkToken.getEmail());
 
       return createLoginResponseEntity(appUser.getDbUser(), req, resp);
     } catch (InvalidTokenException | ExpiredTokenException e) {
-      log.warn("Failed login attempt for token: {} from IP: {}", emailToken, req.getRemoteAddr());
+      log.warn("verify :: Failed login attempt for token: {} from IP: {}", emailToken, req.getRemoteAddr());
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
     }
   }
 
   @PostMapping("/mail-token")
-  public ResponseEntity<?> mailToken(@RequestParam String email, HttpServletRequest req, HttpServletResponse resp) {
+  public ResponseEntity<?> mailToken(@RequestParam String email, HttpServletRequest req) {
 
     try {
       log.info("Login attempt for email: {} from IP: {}", email, req.getRemoteAddr());
