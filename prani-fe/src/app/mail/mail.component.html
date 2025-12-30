@@ -3,17 +3,14 @@
    <nz-form-item>
     <nz-form-label nzRequired>E-mail</nz-form-label>
     <nz-form-control nzErrorTip="Zadejte vaši emailovou adresu">
-      <nz-input-wrapper>
-        <nz-icon nzInputPrefix nzType="email" />
-        <input nz-input [(ngModel)]="email" name="email" email required />
-      </nz-input-wrapper>
+      <input nz-input [(ngModel)]="email" name="email" email required />
     </nz-form-control>
   </nz-form-item>
 
   <nz-form-item>
     <nz-form-control>
       <button nz-button nzType="primary" [disabled]="!form.valid || !form.dirty" [nzLoading]="sendingEmail">
-        <nz-icon nzType="mail" />Odeslat e-mail s přihlášením
+        <nz-icon nzType="mail" nzTheme="outline" />Odeslat e-mail s přihlášením
       </button>
     </nz-form-control>
   </nz-form-item>
