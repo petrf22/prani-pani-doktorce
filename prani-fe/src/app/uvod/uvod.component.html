@@ -1,4 +1,4 @@
-<h1>Oslavme společně kulaté narozeniny naší úžasné paní doktorky Starkové</h1>
+<h1>Kulaté narozeniny naší úžasné paní doktorky Starkové</h1>
 <p>
   Na začátku léta oslaví <strong>paní doktorka Starková</strong>, která po dobu cca. <strong>55 let pečovala o děti v našem městě Hrádek</strong> jako oddaná pediatrička,
   své významné výročí.
@@ -14,22 +14,21 @@ Jak to funguje?
   <ul>
     <li>Na stránce <a routerLink="/prani">přání</a> napište své přání k jejím narozeninám. Nezapomeňte se podepsat.</li>
     <li>Přidejte fotku (volitelně). Pokud chcete, nahrajte fotografii vašeho dítěte (nebo sebe jako dítěte), které paní doktorka léčila.</li>
-    <li>Fotky budou součástí společné sbírky vzpomínek, které se zvěční ve fotoknize, kterou bychom předali paní doktorce v červnu 2026 (přesný datum bude upřesněn). </li>
-    <li>Během předání "knihy vzpomínek" budete vítání všichni, kteří se budete chtít předání zúčastnit osobně.</li>
+    <li>Fotky budou součástí společné sbírky vzpomínek, které se zvěční ve fotoknize, kterou bych předal paní doktorce v červnu 2026. </li>
   </ul>
 } @else {
   <!-- Verze pro anonymní uživatele -->
   <ul>
     <li>Zadáte svůj e-mail, na který vám po odeslání přijde adresa (URL) pro přihlášení do aplikace. Klikněte na odkaz ve vašem e-mailu, abyste mohli pokračovat.</li>
     <li>Detailní informace získáte po zobrazení odkazu z vašeho e-mailu.</li>
-    <li>Proč je potřeba se ověřit e-mailem? Protože chceme zamezet anonymům, aby nám plnily data aplikace a také vás potřebujeme informovat o detailech, které se mouhou s blížícím se termínem měnit.</li>
+    <li>Proč je potřeba se ověřit e-mailem? Protože aplikace nepoužívá hesla.</li>
   </ul>
 }
 
 @if (userService.tokenSig()) {
   <p>
-    Všechna přání a fotky budou shromážděna a předána paní doktorce jako krásný dárek k narozeninám.
-    Přidejte se a pomozte nám vytvořit nezapomenutelnou oslavu.
+    Všechna přání a fotky budou shromážděna a předána paní doktorce jako krásný dárek k narozeninám.<br>
+    Přidejte se a pomozte nám vytvořit vzpomínky pro paní doktorku Starkovou, aby věděle že jsme na ní nezapomněli.<br>
     Děkujeme za vaši účast!
   </p>
 } @else {
@@ -37,3 +36,6 @@ Jak to funguje?
     <app-mail></app-mail>
   </p>
 }
+<p>
+  <em>Aplikaci bude možné používat do 31.&nbsp;5.&nbsp;2026 včetně.</em>
+</p>
