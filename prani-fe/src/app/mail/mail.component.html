@@ -12,7 +12,9 @@
 
   <nz-form-item>
     <nz-form-control>
-      <button nz-button nzType="primary" [disabled]="!form.valid || !form.dirty">Odeslat e-mail s přihlášením</button>
+      <button nz-button nzType="primary" [disabled]="!form.valid || !form.dirty" [nzLoading]="sendingEmail">
+        <nz-icon nzType="mail" />Odeslat e-mail s přihlášením
+      </button>
     </nz-form-control>
   </nz-form-item>
 </form>

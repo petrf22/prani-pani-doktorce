@@ -9,10 +9,13 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzImageModule } from 'ng-zorro-antd/image';
 import { NzResultModule } from 'ng-zorro-antd/result';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-mail',
-  imports: [FormsModule, NzFormModule, NzInputModule, NzInputModule, NzImageModule, NzAlertModule, NzButtonModule, NzResultModule, JsonPipe],
+  imports: [FormsModule, NzFormModule, NzInputModule, NzInputModule, NzImageModule, NzAlertModule, NzButtonModule,
+    NzResultModule, NzIconModule, JsonPipe],
   templateUrl: './mail.component.html',
   styleUrls: ['./mail.component.css']
 })
@@ -21,24 +24,31 @@ export class MailComponent {
 
   @ViewChild('form') formRef!: NgForm;
 
+  sendingEmail = false;
   email = '';
-  sentInfo = signal<{message: string, error: boolean, sent: boolean}>({message: '', error: false, sent: false});
+  sentInfo = signal<{ message: string, error: boolean, sent: boolean }>({ message: '', error: false, sent: false });
 
   submitForm(): void {
     console.log('MailComponent :: submit :: email:', this.email);
 
-    this.userService.mailToken(this.email).subscribe({
-      next: () => {
-        console.log('MailComponent :: Mail token sent successfully.');
+    this.sendingEmail = true;
 
-        this.formRef.form.markAsPristine();
-        this.formRef.form.markAsUntouched();
-        this.sentInfo.set({message: 'E-mail byl úspěšně odeslán.', error: false, sent: true});
-      },
-      error: (error) => {
-        console.error('MailComponent :: Error sending mail token:', error);
-        this.sentInfo.set({message: 'Chyba při odesílání e-mailu.', error: true, sent: true});
-      }
-    });
+    this.userService.mailToken(this.email)
+      .pipe(
+        finalize(() => this.sendingEmail = false)
+      )
+      .subscribe({
+        next: () => {
+          console.log('MailComponent :: Mail token sent successfully.');
+
+          this.formRef.form.markAsPristine();
+          this.formRef.form.markAsUntouched();
+          this.sentInfo.set({ message: 'E-mail byl úspěšně odeslán.', error: false, sent: true });
+        },
+        error: (error) => {
+          console.error('MailComponent :: Error sending mail token:', error);
+          this.sentInfo.set({ message: 'Chyba při odesílání e-mailu.', error: true, sent: true });
+        }
+      });
   }
 }
