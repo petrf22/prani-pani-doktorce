@@ -1,6 +1,5 @@
 package cz.petrf.prani.controller;
 
-import cz.petrf.prani.db.entity.Photo;
 import cz.petrf.prani.db.entity.TextContent;
 import cz.petrf.prani.security.AppUser;
 import cz.petrf.prani.service.TextContentService;
@@ -68,7 +67,7 @@ public class TextContentController {
   public ResponseEntity<?> getTextContent(@PathVariable Long id, @AuthenticationPrincipal AppUser appUser) {
     return textContentService.getTextContent(id, appUser)
         .map(TextContentController::toResponseMap)
-        .map(response -> ResponseEntity.ok(response))
+        .map(ResponseEntity::ok)
         .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(Map.of("message", "Textový záznam s ID " + id + " nebyl nalezen")));
   }
@@ -81,7 +80,7 @@ public class TextContentController {
   public ResponseEntity<?> getAllTextContents(@AuthenticationPrincipal AppUser appUser) {
     return textContentService.findByUser(appUser)
         .map(TextContentController::toResponseMap)
-        .map(response -> ResponseEntity.ok(response))
+        .map(ResponseEntity::ok)
         .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(Map.of("message", "Uživatel nemá vytvořený text")));
   }
