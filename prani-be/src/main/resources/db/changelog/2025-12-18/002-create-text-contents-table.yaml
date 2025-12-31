@@ -39,11 +39,13 @@ databaseChangeLog:
                   constraints:
                     nullable: false
         - createIndex:
-            indexName: idx_text_content_user
+            indexName: uidx_text_content_user
             tableName: text_contents
             columns:
               - column:
                   name: user_id
+            unique: true
+
       rollback:
         - dropTable:
             tableName: text_contents
