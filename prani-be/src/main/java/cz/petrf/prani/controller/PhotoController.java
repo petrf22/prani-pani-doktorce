@@ -21,6 +21,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/photo")
@@ -99,7 +100,7 @@ public class PhotoController {
           headers.setContentType(MediaType.parseMediaType(photo.getContentType()));
           headers.setContentLength(photo.getFileSize());
           headers.setContentDispositionFormData("inline", photo.getFileName());
-          headers.set("X-Photo-Id", photo.getId().toString());
+          headers.set("X-Photo-Id", Optional.ofNullable(photo.getId()).orElse(0L).toString());
           headers.set("X-Photo-Filename", photo.getFileName());
           // Převod data na RFC 1123 format
           Instant createdAt = photo.getCreatedAt().toInstant();
@@ -125,7 +126,7 @@ public class PhotoController {
   public ResponseEntity<?> getPhotoInfo(@AuthenticationPrincipal AppUser appUser) {
     return photoService.getPhoto(appUser.getDbUser())
         .map(PhotoController::toResponseMap)
-        .map(response -> ResponseEntity.ok(response))
+        .map(ResponseEntity::ok)
         .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(Map.of("message", "Fotografie nebyla nalezena")));
   }
