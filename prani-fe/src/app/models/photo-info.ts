@@ -3,5 +3,5 @@ export interface PhotoInfo {
   fileName: string;
   contentType: string;
   fileSize: number;
-  uploadedAt: Date;
+  createdAt: Date;
 }
