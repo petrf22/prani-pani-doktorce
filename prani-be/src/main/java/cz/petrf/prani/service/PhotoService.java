@@ -37,9 +37,7 @@ public class PhotoService {
       photo.setFileSize(file.getSize());
 
       return photo;
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    } catch (IOException e) {
+    } catch (SQLException | IOException e) {
       throw new RuntimeException(e);
     }
   }
