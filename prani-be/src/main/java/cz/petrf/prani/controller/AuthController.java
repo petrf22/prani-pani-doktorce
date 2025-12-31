@@ -89,7 +89,8 @@ public class AuthController {
     try {
       /* 2. parse */
       Claims claims = jwtService.extractAllClaims(refreshToken);
-      Optional<UUID> jtiOpt = Optional.ofNullable(claims.getId()).map(UUID::fromString);
+      Optional<UUID> jtiOpt = Optional.ofNullable(claims.getId())
+          .map(UUID::fromString);
 
       /* 1. chybí JIT */
       if (jtiOpt.isEmpty()) {
@@ -220,7 +221,9 @@ public class AuthController {
     try {
       log.info("Login attempt for email: {} from IP: {}", email, req.getRemoteAddr());
 
-      magicLinkService.sendMagicLink(email);
+      String magicLink = magicLinkService.createMagicLink(email);
+
+      magicLinkService.sendMagicLink(magicLink, email);
 
       return ResponseEntity.ok().build();
     } catch (EmailException e) {
