@@ -21,18 +21,6 @@ public class PhotoService {
     this.photoRepository = photoRepository;
   }
 
-  @Transactional
-  public Photo uploadPhoto(MultipartFile file, User dbUser) throws IOException, SQLException {
-    validateFile(file);
-
-    // Smažeme předchozí fotku, pokud existuje (pouze jedna fotka)
-    photoRepository.deleteAllByUser(dbUser);
-
-    Photo photo = createPhotoFromMultipartFile(file, dbUser);
-
-    return photoRepository.save(photo);
-  }
-
   private Photo createPhotoFromMultipartFile(MultipartFile file, User dbUser) {
     Photo photo = new Photo();
 
@@ -57,7 +45,7 @@ public class PhotoService {
   }
 
   @Transactional
-  public Photo updatePhoto(MultipartFile file, User dbUser) {
+  public Photo createOrUpdatePhoto(MultipartFile file, User dbUser) {
     validateFile(file);
 
     Photo photo = photoRepository.findByUser(dbUser)

@@ -23,13 +23,12 @@ public class TextContentService {
   }
 
   @Transactional
-  public TextContent createTextContent(String content, AppUser appUser) {
+  public TextContent createOrUpdateTextContent(String content, AppUser appUser) {
     validateContent(content);
 
-    textContentRepository.deleteAllByUser(appUser.getDbUser());
+    TextContent textContent = textContentRepository.findByUser(appUser.getDbUser())
+        .orElseGet(() -> TextContent.builder().user(appUser.getDbUser()).build());
 
-    TextContent textContent = new TextContent();
-    textContent.setUser(appUser.getDbUser());
     textContent.setContent(content);
 
     return textContentRepository.save(textContent);
