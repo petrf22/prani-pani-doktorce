@@ -1,5 +1,6 @@
 package cz.petrf.prani.controller;
 
+import cz.petrf.prani.db.entity.Photo;
 import cz.petrf.prani.db.entity.TextContent;
 import cz.petrf.prani.security.AppUser;
 import cz.petrf.prani.service.TextContentService;
@@ -29,13 +30,10 @@ public class TextContentController {
   public ResponseEntity<?> createTextContent(@RequestBody Map<String, String> request, @AuthenticationPrincipal AppUser appUser) {
     try {
       String content = request.get("content");
-      TextContent textContent = textContentService.createTextContent(content, appUser);
+      TextContent textContent = textContentService.createOrUpdateTextContent(content, appUser);
+      Map<String, Object> response = toResponseMap(textContent);
 
-      Map<String, Object> response = new HashMap<>();
-      response.put("id", textContent.getId());
-      response.put("content", textContent.getContent());
-      response.put("createdAt", textContent.getCreatedAt());
-      response.put("message", "Textový záznam byl úspěšně vytvořen");
+      response.put("message", "Textový záznam byl úspěšně uložen");
 
       return ResponseEntity.status(HttpStatus.CREATED).body(response);
     } catch (IllegalArgumentException e) {
@@ -52,11 +50,8 @@ public class TextContentController {
     try {
       String content = request.get("content");
       TextContent textContent = textContentService.updateTextContent(id, content, appUser);
+      Map<String, Object> response = toResponseMap(textContent);
 
-      Map<String, Object> response = new HashMap<>();
-      response.put("id", textContent.getId());
-      response.put("content", textContent.getContent());
-      response.put("updatedAt", textContent.getUpdatedAt());
       response.put("message", "Textový záznam byl úspěšně aktualizován");
 
       return ResponseEntity.ok(response);
@@ -72,15 +67,8 @@ public class TextContentController {
   @GetMapping("/{id}")
   public ResponseEntity<?> getTextContent(@PathVariable Long id, @AuthenticationPrincipal AppUser appUser) {
     return textContentService.getTextContent(id, appUser)
-        .map(textContent -> {
-          Map<String, Object> response = new HashMap<>();
-          response.put("id", textContent.getId());
-          response.put("content", textContent.getContent());
-          response.put("createdAt", textContent.getCreatedAt());
-          response.put("updatedAt", textContent.getUpdatedAt());
-
-          return ResponseEntity.ok(response);
-        })
+        .map(TextContentController::toResponseMap)
+        .map(response -> ResponseEntity.ok(response))
         .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(Map.of("message", "Textový záznam s ID " + id + " nebyl nalezen")));
   }
@@ -92,15 +80,8 @@ public class TextContentController {
   @GetMapping
   public ResponseEntity<?> getAllTextContents(@AuthenticationPrincipal AppUser appUser) {
     return textContentService.findByUser(appUser)
-        .map(textContent -> {
-          Map<String, Object> response = new HashMap<>();
-          response.put("id", textContent.getId());
-          response.put("content", textContent.getContent());
-          response.put("createdAt", textContent.getCreatedAt());
-          response.put("updatedAt", textContent.getUpdatedAt());
-
-          return ResponseEntity.ok(response);
-        })
+        .map(TextContentController::toResponseMap)
+        .map(response -> ResponseEntity.ok(response))
         .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(Map.of("message", "Uživatel nemá vytvořený text")));
   }
@@ -119,5 +100,17 @@ public class TextContentController {
       return ResponseEntity.status(HttpStatus.NOT_FOUND)
           .body(Map.of("message", "Textový záznam s ID " + id + " nebyl nalezen"));
     }
+  }
+
+
+  private static Map<String, Object> toResponseMap(TextContent textContent) {
+    Map<String, Object> response = new HashMap<>();
+
+    response.put("id", textContent.getId());
+    response.put("content", textContent.getContent());
+    response.put("createdAt", textContent.getCreatedAt());
+    response.put("updatedAt", textContent.getUpdatedAt());
+
+    return response;
   }
 }
