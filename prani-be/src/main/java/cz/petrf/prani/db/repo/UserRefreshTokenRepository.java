@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,7 +37,7 @@ public interface UserRefreshTokenRepository extends JpaRepository<UserRefreshTok
   int revokeAllByJit(@Param("jti") UUID jti);
 
   /* smazání už expirovaných tokenů (pro scheduled úklid) */
-  void deleteAllByExpBefore(Instant now);
+  void deleteAllByExpBefore(OffsetDateTime now);
 
   void deleteByUser(User user);
 }

@@ -12,7 +12,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -41,7 +41,7 @@ public class DataSeed {
         .lastName("F")
         .email("petrf@wo.cz")
         .password(encoder.encode("petrf@wo.cz"))
-        .emailVerifiedAt(Instant.now())
+        .emailVerifiedAt(OffsetDateTime.now())
         .roles(Set.of(adminRole))
         .build();
     users.save(root);

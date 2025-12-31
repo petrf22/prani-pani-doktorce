@@ -3,6 +3,7 @@ package cz.petrf.prani.db.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,20 +23,24 @@ public class Role {
   @Column(nullable = false, unique = true, length = 50)
   private String name;
 
-  @Builder.Default
-  @Column(nullable = false, updatable = false)
-  private java.time.Instant createdAt = java.time.Instant.now();
+  @Column(columnDefinition = "TIMESTAMPTZ")
+  private OffsetDateTime createdAt;
 
-  @Builder.Default
-  @Column(nullable = false)
-  private java.time.Instant updatedAt = java.time.Instant.now();
+  @Column(columnDefinition = "TIMESTAMPTZ")
+  private OffsetDateTime updatedAt;
 
   @ManyToMany(mappedBy = "roles")
   @Builder.Default
   private Set<User> users = new HashSet<>();
 
+  @PrePersist
+  protected void onCreate() {
+    createdAt = OffsetDateTime.now();
+    updatedAt = OffsetDateTime.now();
+  }
+
   @PreUpdate
-  public void onUpdate() {
-    updatedAt = java.time.Instant.now();
+  protected void onUpdate() {
+    updatedAt = OffsetDateTime.now();
   }
 }
