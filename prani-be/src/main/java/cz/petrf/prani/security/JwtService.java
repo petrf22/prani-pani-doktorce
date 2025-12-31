@@ -39,7 +39,6 @@ public class JwtService {
 
   private final UserRefreshTokenRepository userRefreshTokenRepository;
 
-
   public String generateToken(User dbUser) {
     Map<String, Object> claims = new HashMap<>();
 
@@ -90,10 +89,7 @@ public class JwtService {
     return extractExpiration(token).before(new Date());
   }
 
-//  public String createAccess(User user) {
-//    return Jwts.builder().subject(user.getEmail()).claim("id", user.getId()).issuedAt(Date.from(clock.instant())).expiration(Date.from(clock.instant().plus(15, ChronoUnit.MINUTES))).signWith(key).compact();
-//  }
-
+  @Transactional
   public String createRefresh(User dbUser, UUID jti, String device, Duration maxAge) {
     OffsetDateTime exp = OffsetDateTime.now().plus(maxAge);
     UserRefreshToken userRefreshToken = save(dbUser, jti, device, exp);
@@ -107,7 +103,7 @@ public class JwtService {
 
   @Transactional
   public UserRefreshToken save(User user, UUID jti, String device, OffsetDateTime exp) {
-    return userRefreshTokenRepository.save(
+    return userRefreshTokenRepository.saveAndFlush(
         UserRefreshToken.builder()
             .user(user)
             .jti(jti)
