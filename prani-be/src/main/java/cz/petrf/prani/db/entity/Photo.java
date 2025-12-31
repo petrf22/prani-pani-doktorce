@@ -6,7 +6,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.sql.Blob;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "photos")
@@ -41,20 +41,20 @@ public class Photo {
   @Column(nullable = false)
   private Long fileSize;
 
-  @Column(nullable = false)
-  private LocalDateTime uploadedAt;
+  @Column(columnDefinition = "TIMESTAMPTZ")
+  private OffsetDateTime createdAt;
 
-  @Column(nullable = false)
-  private LocalDateTime updatedAt;
+  @Column(columnDefinition = "TIMESTAMPTZ")
+  private OffsetDateTime updatedAt;
 
   @PrePersist
   protected void onCreate() {
-    uploadedAt = LocalDateTime.now();
-    updatedAt = LocalDateTime.now();
+    createdAt = OffsetDateTime.now();
+    updatedAt = OffsetDateTime.now();
   }
 
   @PreUpdate
   protected void onUpdate() {
-    updatedAt = LocalDateTime.now();
+    updatedAt = OffsetDateTime.now();
   }
 }
