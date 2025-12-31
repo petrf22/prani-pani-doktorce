@@ -42,14 +42,14 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: uploaded_at
-                  type: TIMESTAMP
+                  name: created_at
+                  type: TIMESTAMPTZ
                   defaultValueComputed: CURRENT_TIMESTAMP
                   constraints:
                     nullable: false
               - column:
                   name: updated_at
-                  type: TIMESTAMP
+                  type: TIMESTAMPTZ
                   defaultValueComputed: CURRENT_TIMESTAMP
                   constraints:
                     nullable: false

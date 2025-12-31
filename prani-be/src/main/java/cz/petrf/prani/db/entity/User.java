@@ -3,7 +3,7 @@ package cz.petrf.prani.db.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,18 +29,17 @@ public class User {
   @Column(nullable = false, unique = true)
   private String email;
 
-  private Instant emailVerifiedAt;
+  @Column(columnDefinition = "TIMESTAMPTZ")
+  private OffsetDateTime emailVerifiedAt;
 
   @Column(nullable = false)
   private String password;
 
-  @Builder.Default
-  @Column(nullable = false, updatable = false)
-  private java.time.Instant createdAt = java.time.Instant.now();
+  @Column(columnDefinition = "TIMESTAMPTZ")
+  private OffsetDateTime createdAt;
 
-  @Builder.Default
-  @Column(nullable = false)
-  private java.time.Instant updatedAt = java.time.Instant.now();
+  @Column(columnDefinition = "TIMESTAMPTZ")
+  private OffsetDateTime updatedAt;
 
   @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
@@ -51,8 +50,14 @@ public class User {
   @Builder.Default
   private Set<Role> roles = new HashSet<>();
 
+  @PrePersist
+  protected void onCreate() {
+    createdAt = OffsetDateTime.now();
+    updatedAt = OffsetDateTime.now();
+  }
+
   @PreUpdate
-  public void onUpdate() {
-    updatedAt = java.time.Instant.now();
+  protected void onUpdate() {
+    updatedAt = OffsetDateTime.now();
   }
 }

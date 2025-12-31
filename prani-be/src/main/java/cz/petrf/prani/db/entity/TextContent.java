@@ -3,7 +3,7 @@ package cz.petrf.prani.db.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "text_contents")
@@ -26,20 +26,20 @@ public class TextContent {
   @Column(nullable = false, columnDefinition = "TEXT")
   private String content;
 
-  @Column(nullable = false)
-  private LocalDateTime createdAt;
+  @Column(columnDefinition = "TIMESTAMPTZ")
+  private OffsetDateTime createdAt;
 
-  @Column(nullable = false)
-  private LocalDateTime updatedAt;
+  @Column(columnDefinition = "TIMESTAMPTZ")
+  private OffsetDateTime updatedAt;
 
   @PrePersist
   protected void onCreate() {
-    createdAt = LocalDateTime.now();
-    updatedAt = LocalDateTime.now();
+    createdAt = OffsetDateTime.now();
+    updatedAt = OffsetDateTime.now();
   }
 
   @PreUpdate
   protected void onUpdate() {
-    updatedAt = LocalDateTime.now();
+    updatedAt = OffsetDateTime.now();
   }
 }

@@ -45,7 +45,7 @@ public class PhotoController {
       response.put("fileName", photo.getFileName());
       response.put("contentType", photo.getContentType());
       response.put("fileSize", photo.getFileSize());
-      response.put("uploadedAt", photo.getUploadedAt());
+      response.put("createdAt", photo.getCreatedAt());
       response.put("message", "Fotografie byla úspěšně nahrána");
 
       return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -97,9 +97,9 @@ public class PhotoController {
           headers.set("X-Photo-Id", photo.getId().toString());
           headers.set("X-Photo-Filename", photo.getFileName());
           // Převod data na RFC 1123 format
-          Instant uploadedAt = photo.getUploadedAt().atZone(ZoneId.systemDefault()).toInstant();
+          Instant createdAt = photo.getCreatedAt().toInstant();
           String rfc1123Date = DateTimeFormatter.RFC_1123_DATE_TIME.withZone(ZoneId.systemDefault())
-              .format(uploadedAt);
+              .format(createdAt);
           headers.set("X-Photo-Uploaded-At", rfc1123Date);
 
           try {
@@ -127,7 +127,7 @@ public class PhotoController {
           response.put("fileName", photo.getFileName());
           response.put("contentType", photo.getContentType());
           response.put("fileSize", photo.getFileSize());
-          response.put("uploadedAt", photo.getUploadedAt());
+          response.put("createdAt", photo.getCreatedAt());
           response.put("updatedAt", photo.getUpdatedAt());
 
           return ResponseEntity.ok(response);

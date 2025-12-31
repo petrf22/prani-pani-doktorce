@@ -20,12 +20,12 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: expires_at
-                  type: TIMESTAMP
+                  type: TIMESTAMPTZ
                   constraints:
                     nullable: false
               - column:
                   name: used_at
-                  type: TIMESTAMP
+                  type: TIMESTAMPTZ
                   constraints:
                     nullable: true
               - column:
