@@ -58,17 +58,17 @@ export class PraniComponent implements OnInit {
   textContent = signal<TextContent | null>(null);
   fileList = signal<NzUploadFile[]>([]);
   aktualizace = computed(() => {
-    const uploadedText = this.fileList()[0]?.response?.createdAt;
-    const uploaded = uploadedText ? new Date(uploadedText!) : null;
-    const createdAtText = this.textContent()?.createdAt;
-    const createdAt = createdAtText ? new Date(createdAtText!) : null;
+    const photoUpdatedAtText = this.fileList()[0]?.response?.updatedAt;
+    const photoUpdatedAt = photoUpdatedAtText ? new Date(photoUpdatedAtText!) : null;
+    const textUpdatedAtText = this.textContent()?.updatedAt;
+    const textUpdatedAt = textUpdatedAtText ? new Date(textUpdatedAtText!) : null;
 
-    if (isDate(uploaded) && isDate(createdAt)) {
-      return max([uploaded!, createdAt!]);
-    } else if (isDate(uploaded)) {
-      return uploaded;
-    } else if (isDate(createdAt)) {
-      return createdAt;
+    if (isDate(photoUpdatedAt) && isDate(textUpdatedAt)) {
+      return max([photoUpdatedAt!, textUpdatedAt!]);
+    } else if (isDate(photoUpdatedAt)) {
+      return photoUpdatedAt;
+    } else if (isDate(textUpdatedAt)) {
+      return textUpdatedAt;
     } else {
       return null;
     }
@@ -126,7 +126,7 @@ export class PraniComponent implements OnInit {
       //console.log(info.file, info.fileList);
     }
     if (info.file.status === 'done') {
-      this.messageService.success(`${info.file.name} file uploaded successfully`);
+      this.messageService.success(`${info.file.name} file updatedAt successfully`);
       const imgUrl = await fileToDataURL(info.file.originFileObj!);
       this.previewUrl.set(imgUrl);
       // info.file.response
