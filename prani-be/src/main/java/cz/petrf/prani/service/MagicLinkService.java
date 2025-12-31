@@ -17,8 +17,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -72,7 +71,7 @@ public class MagicLinkService {
 
     linkToken.setEmail(email);
     linkToken.setToken(token);
-    linkToken.setExpiresAt(LocalDateTime.now().plusMinutes(expirationMinutes));
+    linkToken.setExpiresAt(OffsetDateTime.now().plusMinutes(expirationMinutes));
 
     magicLinkRepository.save(linkToken);
 
@@ -103,7 +102,7 @@ public class MagicLinkService {
           .publicName(email)
           .password("")
           .email(email)
-          .emailVerifiedAt(Instant.now())
+          .emailVerifiedAt(OffsetDateTime.now())
           .roles(Set.of(userRole))
           .build();
 

@@ -58,7 +58,7 @@ export class PraniComponent implements OnInit {
   textContent = signal<TextContent | null>(null);
   fileList = signal<NzUploadFile[]>([]);
   aktualizace = computed(() => {
-    const uploadedText = this.fileList()[0]?.response?.uploadedAt;
+    const uploadedText = this.fileList()[0]?.response?.createdAt;
     const uploaded = uploadedText ? new Date(uploadedText!) : null;
     const createdAtText = this.textContent()?.createdAt;
     const createdAt = createdAtText ? new Date(createdAtText!) : null;
