@@ -3,6 +3,7 @@ package cz.petrf.prani.controller;
 import cz.petrf.prani.db.entity.Photo;
 import cz.petrf.prani.security.AppUser;
 import cz.petrf.prani.service.PhotoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +24,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/photo")
+@Slf4j
 public class PhotoController {
 
   private final PhotoService photoService;
@@ -38,25 +40,32 @@ public class PhotoController {
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<?> uploadPhoto(@RequestParam("file") MultipartFile file, @AuthenticationPrincipal AppUser appUser) {
     try {
-      Photo photo = photoService.uploadPhoto(file, appUser.getDbUser());
+      Photo photo = photoService.createOrUpdatePhoto(file, appUser.getDbUser());
+      Map<String, Object> response = toResponseMap(photo);
 
-      Map<String, Object> response = new HashMap<>();
-      response.put("id", photo.getId());
-      response.put("fileName", photo.getFileName());
-      response.put("contentType", photo.getContentType());
-      response.put("fileSize", photo.getFileSize());
-      response.put("createdAt", photo.getCreatedAt());
-      response.put("message", "Fotografie byla úspěšně nahrána");
+      response.put("message", "Fotografie byla úspěšně uložen");
 
       return ResponseEntity.status(HttpStatus.CREATED).body(response);
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-    } catch (IOException e) {
+    } catch (Exception e) {
+      log.error("Chyba při nahrávání souboru", e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body(Map.of("error", "Chyba při nahrávání souboru"));
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
+          .body(Map.of("error", "Chyba při ukládání souboru"));
     }
+  }
+
+  private static Map<String, Object> toResponseMap(Photo photo) {
+    Map<String, Object> response = new HashMap<>();
+
+    response.put("id", photo.getId());
+    response.put("fileName", photo.getFileName());
+    response.put("contentType", photo.getContentType());
+    response.put("fileSize", photo.getFileSize());
+    response.put("createdAt", photo.getCreatedAt());
+    response.put("updatedAt", photo.getUpdatedAt());
+
+    return response;
   }
 
   /**
@@ -66,14 +75,10 @@ public class PhotoController {
   @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<?> updatePhoto(@RequestParam("file") MultipartFile file, @AuthenticationPrincipal AppUser appUser) {
     try {
-      Photo photo = photoService.updatePhoto(file, appUser.getDbUser());
+      Photo photo = photoService.createOrUpdatePhoto(file, appUser.getDbUser());
 
-      Map<String, Object> response = new HashMap<>();
-      response.put("id", photo.getId());
-      response.put("fileName", photo.getFileName());
-      response.put("contentType", photo.getContentType());
-      response.put("fileSize", photo.getFileSize());
-      response.put("updatedAt", photo.getUpdatedAt());
+      Map<String, Object> response = toResponseMap(photo);
+
       response.put("message", "Fotografie byla úspěšně aktualizována");
 
       return ResponseEntity.ok(response);
@@ -104,9 +109,7 @@ public class PhotoController {
 
           try {
             return new ResponseEntity<>(blobToByteArray(photo.getData()), headers, HttpStatus.OK);
-          } catch (SQLException e) {
-            throw new RuntimeException(e);
-          } catch (IOException e) {
+          } catch (IOException | SQLException e) {
             throw new RuntimeException(e);
           }
         })
@@ -121,17 +124,8 @@ public class PhotoController {
   @GetMapping("/info")
   public ResponseEntity<?> getPhotoInfo(@AuthenticationPrincipal AppUser appUser) {
     return photoService.getPhoto(appUser.getDbUser())
-        .map(photo -> {
-          Map<String, Object> response = new HashMap<>();
-          response.put("id", photo.getId());
-          response.put("fileName", photo.getFileName());
-          response.put("contentType", photo.getContentType());
-          response.put("fileSize", photo.getFileSize());
-          response.put("createdAt", photo.getCreatedAt());
-          response.put("updatedAt", photo.getUpdatedAt());
-
-          return ResponseEntity.ok(response);
-        })
+        .map(PhotoController::toResponseMap)
+        .map(response -> ResponseEntity.ok(response))
         .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(Map.of("message", "Fotografie nebyla nalezena")));
   }
