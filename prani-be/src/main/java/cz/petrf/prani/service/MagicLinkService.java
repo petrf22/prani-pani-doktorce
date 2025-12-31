@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
@@ -43,12 +44,18 @@ public class MagicLinkService {
   private final UserRepository userRepo;
   private final RoleRepository roleRepo;
 
-  @Retryable(value = {MailException.class}, maxRetries = MAX_RETRIES)
-  public void sendMagicLink(String email) {
+  @Transactional
+  public String createMagicLink(String email) {
     // Generování magic linku
-    String token = generateMagicLink(email);
+    String token = generateMagicLinkAndSave(email);
     String magicLink = tokenUrl + token;
     log.info("magicLink: {}", magicLink);
+
+    return magicLink;
+  }
+
+  @Retryable(value = {MailException.class}, maxRetries = MAX_RETRIES)
+  public void sendMagicLink(String magicLink, String email) {
     String htmlContent = createMagicLinkEmail(magicLink, email);
     log.trace("htmlContent: {}", htmlContent);
 
@@ -57,6 +64,7 @@ public class MagicLinkService {
 
   private String createMagicLinkEmail(String magicLink, String email) {
     Context context = new Context();
+
     context.setVariable("magicLink", magicLink);
     context.setVariable("expirationMinutes", expirationMinutes);
     context.setVariable("userEmail", email);
@@ -64,7 +72,7 @@ public class MagicLinkService {
     return templateEngine.process("email/magic-link-email", context);
   }
 
-  private String generateMagicLink(String email) {
+  private String generateMagicLinkAndSave(String email) {
     String token = UUID.randomUUID().toString();
 
     MagicLinkToken linkToken = new MagicLinkToken();
@@ -73,11 +81,12 @@ public class MagicLinkService {
     linkToken.setToken(token);
     linkToken.setExpiresAt(OffsetDateTime.now().plusMinutes(expirationMinutes));
 
-    magicLinkRepository.save(linkToken);
+    magicLinkRepository.saveAndFlush(linkToken);
 
     return token;
   }
 
+  @Transactional
   public MagicLinkToken verifyToken(String token) {
     MagicLinkToken linkToken = magicLinkRepository.findById(token).orElseThrow(InvalidTokenException::new);
 
