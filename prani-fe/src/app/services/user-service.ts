@@ -84,7 +84,7 @@ export class UserService {
         const fileName = headers.get('X-Photo-Filename') ?? 'unknown.jpg';
         const uid = headers.get('X-Photo-Id');
         const photoId = parseInt(uid || '0', 10);
-        const photoUploadedAt = new Date(headers.get('X-Photo-Uploaded-At') ?? '');
+        const photocreatedAt = new Date(headers.get('X-Photo-Uploaded-At') ?? '');
 
         // Konverze ArrayBuffer na Base64
         const base64 = this.arrayBufferToBase64(arrayBuffer);
@@ -92,7 +92,7 @@ export class UserService {
         // Vytvoření Data URL
         const dataUrl = `data:${contentType};base64,${base64}`;
 
-        console.log(`UserService :: getFotoPrani :: Načtena fotografie: ${fileName}, typ: ${contentType}, velikost: ${contentLength}, photoId: ${photoId}, photoUploadedAt: ${photoUploadedAt}`);
+        console.log(`UserService :: getFotoPrani :: Načtena fotografie: ${fileName}, typ: ${contentType}, velikost: ${contentLength}, photoId: ${photoId}, photocreatedAt: ${photocreatedAt}`);
 
         return {
           uid: uid || '',
@@ -100,7 +100,7 @@ export class UserService {
           fileSize: contentLength,
           type: contentType,
           status: 'done',
-          response: {status: "success", uploadedAt: photoUploadedAt},
+          response: {status: "success", createdAt: photocreatedAt},
           linkProps: {download: "image"},
           url: dataUrl
         } as NzUploadFile;
@@ -112,7 +112,7 @@ export class UserService {
         //   fileSize: contentLength,
         //   base64Data: base64,
         //   photoId: photoId,
-        //   uploadedAt: photoUploadedAt
+        //   createdAt: photocreatedAt
         // };
       })/*,
       catchError(error => {

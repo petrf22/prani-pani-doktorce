@@ -20,9 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.SecretKey;
-import java.time.Clock;
 import java.time.Duration;
-import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.function.Function;
 
@@ -38,7 +37,6 @@ public class JwtService {
 
   private SecretKey secretKey;
 
-  private final Clock clock = Clock.systemUTC();
   private final UserRefreshTokenRepository userRefreshTokenRepository;
 
 
@@ -97,26 +95,32 @@ public class JwtService {
 //  }
 
   public String createRefresh(User dbUser, UUID jti, String device, Duration maxAge) {
-    Instant exp = clock.instant().plus(maxAge);
+    OffsetDateTime exp = OffsetDateTime.now().plus(maxAge);
     UserRefreshToken userRefreshToken = save(dbUser, jti, device, exp);
 
     return Jwts.builder()
         .id(userRefreshToken.getJti().toString())
-        .issuedAt(Date.from(clock.instant()))
-        .expiration(Date.from(userRefreshToken.getExp()))
+        .expiration(Date.from(userRefreshToken.getExp().toInstant()))
         .signWith(secretKey)
         .compact();
   }
 
   @Transactional
-  public UserRefreshToken save(User user, UUID jti, String device, Instant exp) {
-    return userRefreshTokenRepository.save(UserRefreshToken.builder().user(user).jti(jti).device(device).issuedAt(clock.instant()).exp(exp).build());
+  public UserRefreshToken save(User user, UUID jti, String device, OffsetDateTime exp) {
+    return userRefreshTokenRepository.save(
+        UserRefreshToken.builder()
+            .user(user)
+            .jti(jti)
+            .device(device)
+            .exp(exp)
+            .build()
+    );
   }
 
   /* validace: existuje a není revoked */
   public boolean isValid(UUID jti) {
     return userRefreshTokenRepository.findByJti(jti)
-        .map(t -> !t.isRevoked() && t.getExp().isAfter(clock.instant()))
+        .map(t -> !t.isRevoked() && t.getExp().isAfter(OffsetDateTime.now()))
         .orElse(false);
   }
 
@@ -129,7 +133,7 @@ public class JwtService {
   /* denní úklid starých záznamů */
   @Scheduled(cron = "@daily")
   public void cleanup() {
-    userRefreshTokenRepository.deleteAllByExpBefore(clock.instant());
+    userRefreshTokenRepository.deleteAllByExpBefore(OffsetDateTime.now());
   }
 
   @Transactional
