@@ -2,6 +2,7 @@ package cz.petrf.prani.db.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.domain.Persistable;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;
@@ -14,7 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class User implements Persistable<Long> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,5 +60,10 @@ public class User {
   @PreUpdate
   protected void onUpdate() {
     updatedAt = OffsetDateTime.now();
+  }
+
+  @Override
+  public boolean isNew() {
+    return id == null;
   }
 }
