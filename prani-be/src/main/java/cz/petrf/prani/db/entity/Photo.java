@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.domain.Persistable;
 
 import java.sql.Blob;
 import java.time.OffsetDateTime;
@@ -15,7 +16,7 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Photo {
+public class Photo implements Persistable<Long> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,5 +57,10 @@ public class Photo {
   @PreUpdate
   protected void onUpdate() {
     updatedAt = OffsetDateTime.now();
+  }
+
+  @Override
+  public boolean isNew() {
+    return id == null;
   }
 }

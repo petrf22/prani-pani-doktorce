@@ -2,6 +2,7 @@ package cz.petrf.prani.db.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.domain.Persistable;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -13,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserRefreshToken {
+public class UserRefreshToken implements Persistable<Long> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,4 +46,8 @@ public class UserRefreshToken {
     issuedAt = OffsetDateTime.now();
   }
 
+  @Override
+  public boolean isNew() {
+    return id==null;
+  }
 }
