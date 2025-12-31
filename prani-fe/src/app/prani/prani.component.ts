@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, Signal, signal, ViewChild, WritableSignal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ViewChild, WritableSignal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -8,15 +8,15 @@ import { UserService } from '../services/user-service';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzResultModule } from 'ng-zorro-antd/result';
-import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzUploadChangeParam, NzUploadFile, NzUploadModule } from 'ng-zorro-antd/upload';
 import { TextContent as TextContent } from '../models/text-content';
-import { DatePipe, JsonPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { PhotoInfo } from '../models/photo-info';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { catchError, map, Observable, of } from 'rxjs';
 import { max, isDate } from "date-fns";
 
@@ -31,7 +31,7 @@ const fileToDataURL = (file: File): Promise<string> =>
 @Component({
   selector: 'app-prani',
   imports: [FormsModule, NzFormModule, NzInputModule, NzInputModule, NzImageModule, NzAlertModule, NzButtonModule,
-    NzResultModule, NzUploadModule, NzIconModule, NzDividerModule, NzGridModule, DatePipe, JsonPipe],
+    NzResultModule, NzUploadModule, NzIconModule, NzDividerModule, NzGridModule, NzSpaceModule, DatePipe],
   templateUrl: './prani.component.html',
   styleUrls: ['./prani.component.css']
 })
@@ -130,16 +130,16 @@ export class PraniComponent implements OnInit {
       const imgUrl = await fileToDataURL(info.file.originFileObj!);
       this.previewUrl.set(imgUrl);
       // info.file.response
-    // } else if (info.file.status === 'removed') {
-    //   this.userService.deleteFotoPrani().subscribe({
-    //     next: () => {
-    //       this.previewUrl.set(null);
-    //       this.messageService.success('Fotografie byla úspěšně odstraněna');
-    //     },
-    //     error: () => {
-    //       this.messageService.error('Odstranění fotografie se nezdařilo');
-    //     }
-    //   });
+      // } else if (info.file.status === 'removed') {
+      //   this.userService.deleteFotoPrani().subscribe({
+      //     next: () => {
+      //       this.previewUrl.set(null);
+      //       this.messageService.success('Fotografie byla úspěšně odstraněna');
+      //     },
+      //     error: () => {
+      //       this.messageService.error('Odstranění fotografie se nezdařilo');
+      //     }
+      //   });
     } else if (info.file.status === 'error') {
       this.messageService.error(`${info.file.name} file upload failed.`);
     }

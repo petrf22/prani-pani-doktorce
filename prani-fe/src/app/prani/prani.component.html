@@ -1,6 +1,6 @@
 <h1>Napište své přání popřípadě přiložte fotografii</h1>
 <p><em>Ve fotoknize bude uvedena vaše fotografie a pod ní zadaný text. Pokud nebude fotografie přiložena, tak se použije
-  pouze text.</em></p>
+    pouze text.</em></p>
 <nz-divider></nz-divider>
 <form nz-form (ngSubmit)="submitForm()" #form="ngForm">
   <nz-form-item>
@@ -55,8 +55,15 @@
   </nz-form-item>
 </form>
 
-@if (aktualizace()) {
-  <p>
-    <em>Vaše poslední změna byla provedena: {{ aktualizace() | date:'medium' }}</em>
-  </p>
-}
+<nz-space nzDirection="vertical">
+  @if (textContent()) {
+  <div>
+    <nz-alert nzType="success" nzMessage="Vaše přání jsem úspěšně zaznamenal"
+      nzDescription="Moc si vážím toho, že jste se ke mě připojili." nzShowIcon></nz-alert>
+  </div>
+  }
+
+  @if (aktualizace()) {
+  <div><em>Poslední změna byla provedena: {{ aktualizace() | date:'medium' }}</em></div>
+  }
+</nz-space>

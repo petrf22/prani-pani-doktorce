@@ -1,6 +1,5 @@
-
 <form nz-form nzLayout="inline" (ngSubmit)="submitForm()" #form="ngForm">
-   <nz-form-item>
+  <nz-form-item>
     <nz-form-label nzRequired>E-mail</nz-form-label>
     <nz-form-control nzErrorTip="Zadejte vaši emailovou adresu">
       <input nz-input [(ngModel)]="email" name="email" email required />
@@ -18,9 +17,7 @@
 
 
 @if (sentInfo().sent) {
-  <nz-alert
-    [nzType]="sentInfo().error ? 'error' : 'success'"
-    [nzMessage]="sentInfo().message"
-    nzShowIcon
-  ></nz-alert>
+<div class="space-top-1">
+  <nz-alert [nzType]="sentInfo().error ? 'error' : 'success'" [nzMessage]="sentInfo().message" nzShowIcon></nz-alert>
+</div>
 }
