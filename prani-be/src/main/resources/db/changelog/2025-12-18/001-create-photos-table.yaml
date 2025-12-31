@@ -54,11 +54,13 @@ databaseChangeLog:
                   constraints:
                     nullable: false
         - createIndex:
-            indexName: idx_photo_user
+            indexName: uidx_photo_user
             tableName: photos
             columns:
               - column:
                   name: user_id
+            unique: true
+
       rollback:
         - dropTable:
             tableName: photos
