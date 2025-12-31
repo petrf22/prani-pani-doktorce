@@ -1,6 +1,6 @@
 <h1>Kulaté narozeniny naší úžasné paní doktorky Starkové</h1>
 <p>
-  Na začátku léta oslaví <strong>paní doktorka Starková</strong>, která po dobu cca. <strong>55 let pečovala o děti v našem městě Hrádek</strong> jako oddaná pediatrička,
+  Na začátku léta oslaví <strong>paní doktorka Starková</strong>, která <strong>přes padesát let pečovala o děti v našem městě Hrádek</strong> jako oddaná pediatrička,
   své významné výročí.
 </p>
 <p>
@@ -25,17 +25,21 @@ Jak to funguje?
   </ul>
 }
 
-@if (userService.tokenSig()) {
-  <p>
-    Všechna přání a fotky budou shromážděna a předána paní doktorce jako krásný dárek k narozeninám.<br>
-    Přidejte se a pomozte nám vytvořit vzpomínky pro paní doktorku Starkovou, aby věděle že jsme na ní nezapomněli.<br>
-    Děkujeme za vaši účast!
-  </p>
-} @else {
-  <p>
-    <app-mail></app-mail>
-  </p>
-}
-<p>
-  <em>Aplikaci bude možné používat do 31.&nbsp;5.&nbsp;2026 včetně.</em>
-</p>
+<nz-space nzDirection="vertical">
+  @if (userService.tokenSig()) {
+    <div>
+      Všechna přání a fotky budou shromážděna a předána paní doktorce jako krásný dárek k narozeninám.<br>
+    </div>
+    <div>
+      Přidejte se a pomozte nám vytvořit vzpomínky pro paní doktorku Starkovou, aby věděla, že jsme na ní nezapomněli.<br>
+    </div>
+    <div>
+      Děkujeme za vaši účast!
+    </div>
+  } @else {
+    <div>
+      <app-mail></app-mail>
+    </div>
+  }
+  <div><em>Aplikaci bude možné používat do 31.&nbsp;5.&nbsp;2026 včetně.</em></div>
+</nz-space>
