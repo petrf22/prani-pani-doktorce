@@ -1,10 +1,25 @@
-<h1>Napište své přání popřípadě přiložte fotografii</h1>
-<p><em>Ve fotoknize bude uvedena vaše fotografie a pod ní zadaný text. Pokud nebude fotografie přiložena, tak se použije
-    pouze text.</em></p>
-<nz-divider></nz-divider>
-<form nz-form (ngSubmit)="submitForm()" #form="ngForm">
+<div nz-row>
+  <div nz-col nzXs="24" [nzSm]="{ span: 14, offset: 6 }">
+    <h2>Napište své přání</h2>
+  </div>
+  <div nz-col nzXs="24" [nzSm]="{ span: 14, offset: 6 }">
+    <em>Ve fotoknize bude uvedena vaše fotografie a pod ní bude zadaný text. Pokud nebude fotografie přiložena, tak se
+      použije pouze text.</em>
+  </div>
+</div>
+
+@if (textContent()) {
+<div nz-row class="v-space">
+  <div nz-col nzXs="24" [nzSm]="{ span: 14, offset: 6 }" class="gutter-row">
+    <nz-alert nzType="success" nzMessage="Vaše přání jsme úspěšně zaznamenali"
+      nzDescription="Velmi si vážíme toho, že jste se k nám připojili." nzShowIcon></nz-alert>
+  </div>
+</div>
+}
+
+<form nz-form (ngSubmit)="submitForm()" #form="ngForm" class="v-space">
   <nz-form-item>
-    <nz-form-label>Fotografie</nz-form-label>
+    <nz-form-label [nzSm]="6" [nzXs]="24">Fotografie</nz-form-label>
     <div>
       <div nz-row [nzGutter]="16">
         <div nz-col>
@@ -28,8 +43,8 @@
   </nz-form-item>
 
   <nz-form-item>
-    <nz-form-label nzRequired>Text přání</nz-form-label>
-    <nz-form-control nzHasFeedback [nzErrorTip]="textPraniErrorTpl"
+    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Text přání</nz-form-label>
+    <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback [nzErrorTip]="textPraniErrorTpl"
       [nzExtra]="`Nezapomeňte na podpis, aby paní doktorka věděla, od koho je zadaný text. Text může obsahovat maximálně ${maxTextLength} znaků.`">
       <nz-textarea-count [nzMaxCharacterCount]="maxTextLength">
         <textarea [(ngModel)]="textPrani" name="textPrani" nz-input rows="5" placeholder="Text přání" required
@@ -48,22 +63,17 @@
     </ng-container>
     }
   </ng-template>
-  <nz-form-item>
-    <nz-form-control>
+  <nz-form-item nz-row class="bottons-area">
+    <nz-form-control nzXs="24" [nzSm]="{ span: 14, offset: 6 }">
       <button nz-button nzType="primary" [disabled]="!form.valid || !form.dirty">Odeslat</button>
     </nz-form-control>
   </nz-form-item>
 </form>
 
-<nz-space nzDirection="vertical">
-  @if (textContent()) {
-  <div>
-    <nz-alert nzType="success" nzMessage="Vaše přání jsem úspěšně zaznamenal"
-      nzDescription="Moc si vážím toho, že jste se ke mně připojili." nzShowIcon></nz-alert>
+@if (aktualizace()) {
+<div nz-row class="v-space">
+  <div nz-col nzXs="24" [nzSm]="{ span: 14, offset: 6 }" class="gutter-row">
+    <div><em>Poslední změna byla provedena: {{ aktualizace() | date:'medium' }}</em></div>
   </div>
-  }
-
-  @if (aktualizace()) {
-  <div><em>Poslední změna byla provedena: {{ aktualizace() | date:'medium' }}</em></div>
-  }
-</nz-space>
+</div>
+}

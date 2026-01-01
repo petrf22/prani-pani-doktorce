@@ -27,7 +27,7 @@ import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LogoutComponent {
-  readonly smazatUcetInfo = "Tato akce je nevratná a smaže všechny vaše údaje z této aplikace.";
+  readonly smazatUcetInfo = "Smazání účtu je nevratná akce, která smaže všechny vaše údaje z této aplikace.";
 
   private userService = inject(UserService);
   private router = inject(Router);
