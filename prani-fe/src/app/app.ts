@@ -1,15 +1,15 @@
-import { AsyncPipe } from '@angular/common';
 import { Component, computed, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
+import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { Observable, filter, map } from 'rxjs';
 import { UserService } from './services/user-service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterLink, RouterOutlet, NzIconModule, NzLayoutModule, NzMenuModule, AsyncPipe],
+  imports: [RouterLink, RouterOutlet, NzIconModule, NzLayoutModule, NzMenuModule, NzDrawerModule],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -20,6 +20,7 @@ export class App {
 
   isCollapsed = false;
   isAuthenticated = computed(() => this.userService.tokenSig() !== null);
+  drawerVisible = false;
 
   getRouteTitle(): Observable<string> {
     return this.router.events.pipe(
@@ -33,4 +34,11 @@ export class App {
       })
     );
   }
-}
+
+  openDrawer(): void {
+    this.drawerVisible = true;
+  }
+
+  closeDrawer(): void {
+    this.drawerVisible = false;
+  }}

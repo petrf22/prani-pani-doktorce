@@ -4,7 +4,6 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { UserService } from '../services/user-service';
-import { JsonPipe } from '@angular/common';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzImageModule } from 'ng-zorro-antd/image';
@@ -15,7 +14,7 @@ import { finalize } from 'rxjs';
 @Component({
   selector: 'app-mail',
   imports: [FormsModule, NzFormModule, NzInputModule, NzInputModule, NzImageModule, NzAlertModule, NzButtonModule,
-    NzResultModule, NzIconModule, JsonPipe],
+    NzResultModule, NzIconModule],
   templateUrl: './mail.component.html',
   styleUrls: ['./mail.component.css']
 })

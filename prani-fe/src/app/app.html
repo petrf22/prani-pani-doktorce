@@ -1,14 +1,44 @@
 <nz-layout>
   <nz-header>
-    <ul nz-menu nzTheme="dark" nzMode="horizontal">
-      <li nz-menu-item routerLink="/">Úvod</li>
-      @if(isAuthenticated()) {
+    <div class="header-container">
+      <div class="logo"></div>
+
+      <h1 class="app-title">Přání paní doktorce</h1>
+
+      <button nz-button nzType="text" class="mobile-menu-trigger" (click)="openDrawer()">
+        <span nz-icon nzType="menu" nzTheme="outline"></span>
+      </button>
+
+      <ul nz-menu nzTheme="dark" nzMode="horizontal" class="desktop-menu">
+        <li nz-menu-item routerLink="/">Úvod</li>
+        @if(isAuthenticated()) {
         <li nz-menu-item routerLink="/prani">Přání</li>
         <li nz-menu-item routerLink="/logout">Odhlásit se</li>
         <li nz-menu-item routerLink="/onas">O nás</li>
-      }
-    </ul>
+        }
+      </ul>
+    </div>
   </nz-header>
+
+ <!-- Mobile drawer menu -->
+  <nz-drawer
+    [nzClosable]="true"
+    [nzVisible]="drawerVisible"
+    nzPlacement="left"
+    nzTitle="Menu"
+    (nzOnClose)="closeDrawer()">
+    <ng-container *nzDrawerContent>
+      <ul nz-menu nzMode="inline">
+        <li nz-menu-item routerLink="/" (click)="closeDrawer()">Úvod</li>
+        @if(isAuthenticated()) {
+        <li nz-menu-item routerLink="/prani" (click)="closeDrawer()">Přání</li>
+        <li nz-menu-item routerLink="/logout" (click)="closeDrawer()">Odhlásit se</li>
+        <li nz-menu-item routerLink="/onas" (click)="closeDrawer()">O nás</li>
+        }
+      </ul>
+    </ng-container>
+  </nz-drawer>
+
   <nz-content>
     <div class="inner-content">
       <router-outlet></router-outlet>
