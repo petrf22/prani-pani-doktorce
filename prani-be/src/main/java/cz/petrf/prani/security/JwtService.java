@@ -161,7 +161,7 @@ public class JwtService {
 
   @PostConstruct
   public void postConstruct() {
-    // Jwts.SIG.HS512.key().build().getEncoded() ...
+    // generátor je v testu
     secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
   }
 }
