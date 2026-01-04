@@ -27,7 +27,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class MagicLinkService {
-  private static final int MAX_RETRIES = 3;
 
   @Value("${app.magic-link.expiration-minutes:15}")
   private int expirationMinutes;
@@ -54,7 +53,6 @@ public class MagicLinkService {
     return magicLink;
   }
 
-  @Retryable(value = {MailException.class}, maxRetries = MAX_RETRIES)
   public void sendMagicLink(String magicLink, String email) {
     String htmlContent = createMagicLinkEmail(magicLink, email);
     log.trace("htmlContent: {}", htmlContent);
