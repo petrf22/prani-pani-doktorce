@@ -20,26 +20,29 @@
 <form nz-form (ngSubmit)="submitForm()" #form="ngForm" class="v-space">
   <nz-form-item>
     <nz-form-label [nzSm]="6" [nzXs]="24">Fotografie</nz-form-label>
-    <div>
-      <div nz-row [nzGutter]="16">
-        <div nz-col>
-          <img nz-image [nzSrc]="previewUrl() || fallback" [nzFallback]="fallback" alt=""
-            style="max-width: 300px; max-height: 300px; width: auto; height: auto;" />
+    <nz-form-control [nzSm]="14" [nzXs]="24"
+      nzExtra="Soubor musí být typu JPG nebo PNG, a současně jeho velikost nesmí přesáhnout 10MB.">
+      <div>
+        <div nz-row [nzGutter]="16">
+          <div nz-col>
+            <img nz-image [nzSrc]="previewUrl() || fallback" [nzFallback]="fallback" alt=""
+              style="max-width: 300px; max-height: 300px; width: auto; height: auto;" />
+          </div>
+        </div>
+        <div nz-row [nzGutter]="16">
+          <div nz-col>
+            <nz-upload nzAction="/api/photo" (nzChange)="handleChange($event)" [nzBeforeUpload]="beforeUpload"
+              [nzFileList]="fileList()" [nzRemove]="removeFoto"
+              [nzShowUploadList]="{ showPreviewIcon: false, showRemoveIcon: true, showDownloadIcon: false }">
+              <button nz-button>
+                <nz-icon nzType="upload" />
+                Nahrát fotografii
+              </button>
+            </nz-upload>
+          </div>
         </div>
       </div>
-      <div nz-row [nzGutter]="16">
-        <div nz-col>
-          <nz-upload nzAction="/api/photo" (nzChange)="handleChange($event)" [nzBeforeUpload]="beforeUpload"
-            [nzFileList]="fileList()" [nzRemove]="removeFoto"
-            [nzShowUploadList]="{ showPreviewIcon: false, showRemoveIcon: true, showDownloadIcon: false }">
-            <button nz-button>
-              <nz-icon nzType="upload" />
-              Nahrát fotografii
-            </button>
-          </nz-upload>
-        </div>
-      </div>
-    </div>
+    </nz-form-control>
   </nz-form-item>
 
   <nz-form-item>
