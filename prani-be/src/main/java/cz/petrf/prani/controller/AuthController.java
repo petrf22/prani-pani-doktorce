@@ -228,7 +228,7 @@ public class AuthController {
       return ResponseEntity.ok().build();
     } catch (EmailException e) {
       log.warn("Failed send attempt for email: {} from IP: {}", email, req.getRemoteAddr());
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
   }
 }

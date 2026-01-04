@@ -46,7 +46,8 @@ export class MailComponent {
         },
         error: (error) => {
           console.error('MailComponent :: Error sending mail token:', error);
-          this.sentInfo.set({ message: 'Chyba při odesílání e-mailu.', error: true, sent: true });
+          const message = error?.error ?? 'Chyba při odesílání e-mailu.';
+          this.sentInfo.set({ message, error: true, sent: true });
         }
       });
   }
