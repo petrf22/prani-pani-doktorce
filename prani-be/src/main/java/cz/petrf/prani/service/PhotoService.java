@@ -3,6 +3,7 @@ package cz.petrf.prani.service;
 import cz.petrf.prani.db.entity.Photo;
 import cz.petrf.prani.db.entity.User;
 import cz.petrf.prani.db.repo.PhotoRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +15,9 @@ import java.util.Optional;
 
 @Service
 public class PhotoService {
+  @Value("${app.upload.foto.max.size.mb:10}")
+  private long fotoMaxUpload;
+
 
   private final PhotoRepository photoRepository;
 
@@ -73,13 +77,13 @@ public class PhotoService {
     }
 
     String contentType = file.getContentType();
-    if (contentType==null || !contentType.startsWith("image/")) {
-      throw new IllegalArgumentException("Soubor musí být obrázek");
+    if (contentType==null || !(contentType.equals("image/jpeg") || contentType.equals("image/png"))) {
+      throw new IllegalArgumentException("Soubor musí být obrázek typu JPG nebo PNG");
     }
 
     // Limit 10MB
-    if (file.getSize() > 10 * 1024 * 1024) {
-      throw new IllegalArgumentException("Soubor je příliš velký (max 10MB)");
+    if (file.getSize() > fotoMaxUpload * 1024L * 1024L) {
+      throw new IllegalArgumentException("Soubor je příliš velký (max %dMB)".formatted(fotoMaxUpload));
     }
   }
 }

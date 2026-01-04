@@ -17,7 +17,7 @@ import { DatePipe } from '@angular/common';
 import { PhotoInfo } from '../models/photo-info';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
-import { catchError, map, Observable, of } from 'rxjs';
+import { catchError, map, Observable, of, tap } from 'rxjs';
 import { max, isDate } from "date-fns";
 
 const fileToDataURL = (file: File): Promise<string> =>
@@ -116,6 +116,8 @@ export class PraniComponent implements OnInit {
   }
 
   async handleChange(info: NzUploadChangeParam): Promise<void> {
+    // console.log('handleChange :: info:', info);
+
     let fileList = [...info.fileList];
 
     // Limit - jeden soubor
@@ -123,10 +125,9 @@ export class PraniComponent implements OnInit {
 
     if (info.file.status !== 'uploading') {
       console.log('handleChange :: info:', info);
-      //console.log(info.file, info.fileList);
     }
     if (info.file.status === 'done') {
-      this.messageService.success(`${info.file.name} file updatedAt successfully`);
+      this.messageService.success(`Fotografie ${info.file.name} byl úspěšně nahrán`);
       const imgUrl = await fileToDataURL(info.file.originFileObj!);
       this.previewUrl.set(imgUrl);
       // info.file.response
@@ -141,18 +142,27 @@ export class PraniComponent implements OnInit {
       //     }
       //   });
     } else if (info.file.status === 'error') {
-      this.messageService.error(`${info.file.name} file upload failed.`);
+      const message = info.file.error?.error?.error || info.file.error?.statusText || 'Neočekávaná chyba';
+      const errMessage = `Chyba při nahrávání fotografie ${info.file.name}: ${message}`;
+      console.error(errMessage);
+      this.messageService.error(errMessage);
     }
 
     this.fileList.set(fileList);
   }
 
   beforeUpload = (file: NzUploadFile): boolean => {
-    const isImage = file.type?.startsWith('image/') ?? false;
-    if (!isImage) {
-      this.messageService.error('Vkládat se mohou jen obrázky');
+    if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+      this.messageService.error('Vkládat se mohou jen obrázky typu JPG a PNG');
+      return false;
+    } else if (file.size === undefined) {
+      this.messageService.error('Nebylo možné zjistit velikost souboru');
+      return false;
+    } else if (file.size > 10 * 1024 * 1024) {
+      this.messageService.error('Velikost souboru nesmí přesáhnout 10MB');
+      return false;
     }
-    return isImage;
+    return true;
   };
 
 
@@ -165,6 +175,7 @@ export class PraniComponent implements OnInit {
         this.previewUrl.set('');
         return true;
       }),
+      tap(() => this.messageService.success('Fotografie byla úspěšně odstraněna')),
       catchError(() => of(false))
     );
 
