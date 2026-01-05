@@ -74,11 +74,21 @@ public class DisposableEmailService {
   }
 
   public boolean isDisposable(String email) {
-    if (email==null || !email.contains("@")) {
+    if (StringUtils.isBlank(email) || !email.contains("@")) {
       return false;
     }
+
     String domain = StringUtils.substringAfter(email, '@').toLowerCase();
-    return getBlockedDomains().contains(domain);
+
+    do {
+      if (getBlockedDomains().contains(domain)) {
+        return true;
+      }
+
+      domain = StringUtils.substringAfter(domain, '.');
+    } while (StringUtils.isNotEmpty(email));
+
+    return false;
   }
 
   public Set<String> getBlockedDomains() {
