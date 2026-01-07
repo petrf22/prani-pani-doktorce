@@ -51,12 +51,15 @@ public class MagicLinkService {
 
   public void sendMagicLink(String magicLink, String email) {
     String htmlContent = createMagicLinkEmail(magicLink, email);
+    log.info("createMagicLinkEmail - htmlContent size: {}", htmlContent.length());
     log.trace("htmlContent: {}", htmlContent);
 
     emailService.sendHtmlEmail(fromEmail, email, mailSubject, htmlContent);
   }
 
   private String createMagicLinkEmail(String magicLink, String email) {
+    log.info("createMagicLinkEmail: email/magic-link-email");
+
     Context context = new Context();
 
     context.setVariable("magicLink", magicLink);
