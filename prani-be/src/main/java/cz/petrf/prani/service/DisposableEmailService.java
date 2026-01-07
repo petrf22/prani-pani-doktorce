@@ -79,6 +79,7 @@ public class DisposableEmailService {
     }
 
     String domain = StringUtils.substringAfter(email, '@').toLowerCase();
+    log.info("isDisposable :: domain: {}", domain);
 
     do {
       if (getBlockedDomains().contains(domain)) {
@@ -86,7 +87,8 @@ public class DisposableEmailService {
       }
 
       domain = StringUtils.substringAfter(domain, '.');
-    } while (StringUtils.isNotEmpty(email));
+      log.info("isDisposable :: domain: {}", domain);
+    } while (StringUtils.isNotEmpty(domain));
 
     return false;
   }
