@@ -19,6 +19,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -32,7 +33,7 @@ public class EmailService {
   private final JavaMailSender mailSender;
   private final DisposableEmailService disposableEmailService;
 
-  private Optional<Resend> resendOpt = Optional.empty();
+  private Resend resend = null;
 
   @Retryable(value = {MailException.class})
   public void sendHtmlEmail(String fromEmail, String toEmail, String mailSubject, String htmlContent) {
@@ -40,7 +41,7 @@ public class EmailService {
       throw new InvalidEmailDomainException("Doména pro e-mail %s není povolená.".formatted(toEmail));
     }
 
-    if (resendOpt.isPresent()) {
+    if (resend != null) {
       sendOverResend(fromEmail, toEmail, mailSubject, htmlContent);
     } else {
       sendOverJavaMail(fromEmail, toEmail, mailSubject, htmlContent);
@@ -48,15 +49,17 @@ public class EmailService {
   }
 
   private void sendOverResend(String fromEmail, String toEmail, String mailSubject, String htmlContent) {
+    log.info("sendOverResend from {} to {} ", fromEmail, toEmail);
+
     CreateEmailOptions params = CreateEmailOptions.builder()
-        .from(fromEmail)  // nebo vlastní doména po verifikaci
+        .from(fromEmail)
         .to(toEmail)
         .subject(mailSubject)
         .html(htmlContent)
         .build();
 
     try {
-      CreateEmailResponse data = resendOpt.orElseThrow().emails().send(params);
+      CreateEmailResponse data = Objects.requireNonNull(resend).emails().send(params);
       log.info("Magic link byl odeslán na email: {} (email ID: {})", toEmail, data.getId());
     } catch (ResendException e) {
       log.error("Chyba při odeslání emailu s přihlášením k aplikaci na adresu: {}", toEmail, e);
@@ -65,6 +68,8 @@ public class EmailService {
   }
 
   private void sendOverJavaMail(String fromEmail, String toEmail, String mailSubject, String htmlContent) {
+    log.info("sendOverJavaMail from {} to {} ", fromEmail, toEmail);
+
     MimeMessage message = mailSender.createMimeMessage();
 
     try {
@@ -84,7 +89,8 @@ public class EmailService {
 
   @PostConstruct
   public void postConstruct() {
-    resendOpt = Optional.ofNullable(StringUtils.trimToNull(resendApiKey))
-        .map(Resend::new);
+    resend = Optional.ofNullable(StringUtils.trimToNull(resendApiKey))
+        .map(Resend::new)
+        .orElse(null);
   }
 }

@@ -223,6 +223,8 @@ public class AuthController {
 
       String magicLink = magicLinkService.createMagicLink(email);
 
+      log.info("Send magicLink: {}", magicLink);
+
       magicLinkService.sendMagicLink(magicLink, email);
 
       return ResponseEntity.ok().build();

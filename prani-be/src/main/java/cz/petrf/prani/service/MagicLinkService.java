@@ -11,8 +11,6 @@ import cz.petrf.prani.exception.InvalidTokenException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
-import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
@@ -47,10 +45,8 @@ public class MagicLinkService {
   public String createMagicLink(String email) {
     // Generování magic linku
     String token = generateMagicLinkAndSave(email);
-    String magicLink = tokenUrl + token;
-    log.info("magicLink: {}", magicLink);
 
-    return magicLink;
+    return tokenUrl + token;
   }
 
   public void sendMagicLink(String magicLink, String email) {
