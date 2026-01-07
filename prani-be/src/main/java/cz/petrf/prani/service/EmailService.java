@@ -38,6 +38,7 @@ public class EmailService {
   @Retryable(value = {MailException.class})
   public void sendHtmlEmail(String fromEmail, String toEmail, String mailSubject, String htmlContent) {
     if (disposableEmailService.isDisposable(toEmail)) {
+      log.error("isDisposable :: toEmail: {} == false", toEmail);
       throw new InvalidEmailDomainException("Doména pro e-mail %s není povolená.".formatted(toEmail));
     }
 
