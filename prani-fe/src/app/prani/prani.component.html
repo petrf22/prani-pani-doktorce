@@ -3,8 +3,8 @@
     <h2>Napište své přání</h2>
   </div>
   <div nz-col nzXs="24" [nzSm]="{ span: 14, offset: 6 }">
-    <em>Ve fotoknize bude uvedena vaše fotografie a pod ní bude zadaný text. Pokud nebude fotografie přiložena, tak se
-      použije pouze text.</em>
+    <em>Ve fotoknize bude uvedena vaše fotografie a zadaný text přání. Pokud nebude fotografie přiložena, tak se
+      použije pouze text přání.</em>
   </div>
 </div>
 
@@ -48,7 +48,7 @@
   <nz-form-item>
     <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Text přání</nz-form-label>
     <nz-form-control [nzSm]="14" [nzXs]="24" nzHasFeedback [nzErrorTip]="textPraniErrorTpl"
-      [nzExtra]="`Nezapomeňte na podpis, aby paní doktorka věděla, od koho je zadaný text. Text může obsahovat maximálně ${maxTextLength} znaků.`">
+      [nzExtra]="`Nezapomeňte na podpis, aby paní doktorka věděla, od koho je zadaný text přání. Text může obsahovat maximálně ${maxTextLength} znaků.`">
       <nz-textarea-count [nzMaxCharacterCount]="maxTextLength">
         <textarea [(ngModel)]="textPrani" name="textPrani" nz-input rows="5" placeholder="Text přání" required
           [maxlength]="maxTextLength"></textarea>
